@@ -5,20 +5,26 @@
 
 <!DOCTYPE html>
 <html>
-<head>
-	<title>Cint - demo page</title>
-	<meta charset="utf-8">
-</head>
-<body>
+	<head>
+		<title>Cint - demo page</title>
+		<meta charset="utf-8">
 
- <div class="container">
-	<h1>Cint - content integrator</h1>
+		<link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+	</head>
+	<body>
 
-	<p>Plugins:</p>
-	<p>
-		<?=$insta;?>
-	</p>
- </div>
+	 <div class="container">
+		<h1>Cint - content integrator</h1>
 
-</body>
+		<p>Plugins:</p>
+		<p>
+			<?=$insta;?>
+		</p>
+	 </div>
+
+	 <!-- Libs -->
+	 <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
+	 <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+
+	</body>
 </html>

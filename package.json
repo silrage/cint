@@ -1,0 +1,17 @@
+{
+  "name": "cint",
+  "version": "0.0.1",
+  "description": "Content integrator.",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/v3ctor/cint.git"
+  },
+  "private": "true",
+  "author": "v3ctor",
+  "license": "GNU GPL",
+  "homepage": "http://v3ctor.ru",
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "jquery": "^2.2.3"
+  }
+}
