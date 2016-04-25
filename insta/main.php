@@ -1,0 +1,7 @@
+<?php
+ /**
+  * Main instagram framework
+   */
+
+ 
+ ?>
