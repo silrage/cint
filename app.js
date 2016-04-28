@@ -57,7 +57,7 @@ app.controller('objects', ['$rootScope', '$scope', '$http', function($rootScope,
     var instaURL = 'https://api.instagram.com/v1/users/self/?access_token='+respToken;
     $http({
       method: 'GET',
-      url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/?access_token=1267338874.cb2e702.aacea2be49cf4fe28931b53f172b8086'//instaURL,//'insta/obj.php?url='+instaURL,
+      url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/?access_token='+respToken//instaURL,//'insta/obj.php?url='+instaURL,
       // headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       // transformRequest: function(obj) {
       //   var str = [];
