@@ -71,6 +71,9 @@ app.controller('objects', ['$rootScope', '$scope', '$http', function($rootScope,
     })
     .success(function(resp){
       console.log(resp);
+      $scope.profile = {
+        insta: resp.data
+      }
     })
     .error(function(resp){
       console.log(resp);

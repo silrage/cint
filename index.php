@@ -40,7 +40,7 @@
           <!-- Instagram API -->
           <?include_once $currentPlugin['config'];?>
           <h3>Instagram</h3>
-          <a href="https://api.instagram.com/oauth/authorize/?client_id=cb2e702fde06407da2bfeb9ffdb6618f&redirect_uri=http://cint.dev&response_type=token&scope=basic">Authorize</a>
+          <a href="https://api.instagram.com/oauth/authorize/?client_id=cb2e702fde06407da2bfeb9ffdb6618f&redirect_uri=http://cint.dev&response_type=token&scope=basic+public_content">Authorize</a>
         </div>
         <!-- Library -->
         <script type="text/javascript" src="<?=$currentPlugin['libs'];?>"></script>
@@ -49,9 +49,16 @@
     </div>
 
     <div class="load" ng-if="auth.insta" ng-controller="objects">
-      <a class="" ng-click="view()">
-        load
-      </a>
+      <div class="insta">
+        <a class="" ng-click="view()">
+          refresh
+        </a>
+        <div class="profile">
+          <img ng-src="{{profile.insta.profile_picture}}" />
+          <b>{{profile.insta.username}}</b>
+          {{profile.insta.full_name}}
+        </div>
+      </div>
     </div>
 
 
