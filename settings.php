@@ -2,6 +2,12 @@
 /**
  * Required private settings
  */
- 
- $insta = TRUE;
+
+ $plugins = array(
+   'insta'=>array(
+     'enabled'=>TRUE,
+     'config'=>'/insta/main.php',
+     'libs'=>'/insta/libs/script.js'
+   )
+ );
 ?>

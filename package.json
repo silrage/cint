@@ -11,6 +11,8 @@
   "license": "GNU GPL",
   "homepage": "http://v3ctor.ru",
   "dependencies": {
+    "angular": "^1.5.5",
+    "angular-route": "^1.5.5",
     "bootstrap": "^3.3.6",
     "jquery": "^2.2.3"
   }
