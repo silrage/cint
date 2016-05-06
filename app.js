@@ -70,14 +70,41 @@ app.controller('objects', ['$rootScope', '$scope', '$http', function($rootScope,
       // }
     })
     .success(function(resp){
-      console.log(resp);
+      // console.log(resp);
       $scope.profile = {
         insta: resp.data
       }
+
+      //Get my followed_by
+      $http({
+        method: 'GET',
+        url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/followed-by?access_token='+respToken
+      }).success(function(resp){
+        console.log(resp);
+        $scope.followed_by = resp.data;
+        // $scope.followed_by.countFollowers = 5;
+      })
+
+      //Get my popular media
+      $http({
+        method: 'GET',
+        url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/media/liked?access_token='+respToken
+      }).success(function(resp){
+        // console.log(resp);
+        $scope.gallery = resp.data;
+        $scope.gallery.size = 'low_resolution';
+        $scope.gallery.countImages = 6;
+      })
+
     })
     .error(function(resp){
       console.log(resp);
     });
+  }
+  $scope.exit = function() {
+    $scope.profile = false;
+    $rootScope.auth = false;
+    window.location = '/';
   }
   $scope.view();
 }])
