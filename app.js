@@ -31,7 +31,6 @@ app.controller('authorize', ['$rootScope', '$scope', '$location', '$http', funct
       token: respToken,
       insta: true
     }
-    console.log( $scope );
   }
 
   $scope.instaAuthorize = function() {
@@ -74,33 +73,41 @@ app.controller('objects', ['$rootScope', '$scope', '$http', function($rootScope,
       $scope.profile = {
         insta: resp.data
       }
+      $scope.action(respToken);
 
-      //Get my followed_by
-      $http({
-        method: 'GET',
-        url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/followed-by?access_token='+respToken
-      }).success(function(resp){
-        console.log(resp);
-        $scope.followed_by = resp.data;
-        // $scope.followed_by.countFollowers = 5;
-      })
+      //id_hj = 1390573092
 
       //Get my popular media
-      $http({
-        method: 'GET',
-        url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/media/liked?access_token='+respToken
-      }).success(function(resp){
-        // console.log(resp);
-        $scope.gallery = resp.data;
-        $scope.gallery.size = 'low_resolution';
-        $scope.gallery.countImages = 6;
-      })
+      // $http({
+      //   method: 'GET',
+      //   url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/media/liked?access_token='+respToken
+      // }).success(function(resp){
+      //   // console.log(resp);
+      //   $scope.gallery = resp.data;
+      //   $scope.gallery.size = 'low_resolution';
+      //   $scope.gallery.countImages = 6;
+      // })
 
     })
     .error(function(resp){
       console.log(resp);
     });
   }
+
+  $scope.action = function(token){
+    //Get my followed_by
+    $http({
+      method: 'GET',
+      url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/follows?name=helenajewelry&name=helenajewelry&access_token='+token
+    }).success(function(resp){
+      console.info(resp, 'action');
+      // $scope.followed_by = resp.data;
+      // $scope.followed_by.countFollowers = 5;
+    })
+  }
+
+
+
   $scope.exit = function() {
     $scope.profile = false;
     $rootScope.auth = false;

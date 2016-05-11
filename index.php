@@ -74,7 +74,7 @@
     <div class="panel" ng-controller="authorize">
 
       <?if($plugins['insta']['enabled']):?>
-        <div class="insta" ng-if="!auth.insta">
+        <div class="insta" ng-if="!profile.insta">
           <?$currentPlugin = $plugins['insta'];?>
           <!-- Instagram API -->
           <?include_once $currentPlugin['config'];?>
