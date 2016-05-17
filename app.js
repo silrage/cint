@@ -8,7 +8,7 @@ var routes = function($httpProvider, $routeProvider, $locationProvider, $http) {
   $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
   $routeProvider
     .when('/', {
-
+      templateUrl: 'index.php'
     })
     //Error when not find page
     .otherwise({
@@ -17,7 +17,7 @@ var routes = function($httpProvider, $routeProvider, $locationProvider, $http) {
   // Use HTML5 to History stack, without hashtag
   $locationProvider.html5Mode({
     enabled: true,
-    requireBase: false
+    // requireBase: false
   });
 };
 
@@ -51,61 +51,67 @@ app.controller('authorize', ['$rootScope', '$scope', '$location', '$http', funct
 
 app.controller('objects', ['$rootScope', '$scope', '$http', function($rootScope, $scope, $http) {
   var respToken = $rootScope.auth.token;
-  $scope.view = function() {
+  // console.log(respToken)
+  $scope.view = function(token) {
     // var instaURL = 'https://api.instagram.com/v1/tags/nofilter/media/recent?access_token='+respToken;
-    var instaURL = 'https://api.instagram.com/v1/users/self/?access_token='+respToken;
-    $http({
-      method: 'GET',
-      url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/?access_token='+respToken//instaURL,//'insta/obj.php?url='+instaURL,
-      // headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      // transformRequest: function(obj) {
-      //   var str = [];
-      //   for (var p in obj)
-      //     str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-      //   return str.join('&');
-      // },
-      // data: {
-      //   access_token: respToken
-      // }
-    })
-    .success(function(resp){
-      // console.log(resp);
+    var instaURL = 'https://api.instagram.com/v1/users/self/?access_token='+token+'&callback=JSON_CALLBACK';
+    $http.jsonp(instaURL).success(function(resp) {
       $scope.profile = {
         insta: resp.data
       }
-      $scope.action(respToken);
+    })
+    // $http({
+    //   method: 'GET',
+    //   url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/?access_token='+respToken//instaURL,//'insta/obj.php?url='+instaURL,
+    //   // headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    //   // transformRequest: function(obj) {
+    //   //   var str = [];
+    //   //   for (var p in obj)
+    //   //     str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+    //   //   return str.join('&');
+    //   // },
+    //   // data: {
+    //   //   access_token: respToken
+    //   // }
+    // })
+    // .success(function(resp){
+    //   // console.log(resp);
+    //   $scope.profile = {
+    //     insta: resp.data
+    //   }
+      
 
-      //id_hj = 1390573092
+    //   //id_hj = 1390573092
 
-      //Get my popular media
-      // $http({
-      //   method: 'GET',
-      //   url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/media/liked?access_token='+respToken
-      // }).success(function(resp){
-      //   // console.log(resp);
-      //   $scope.gallery = resp.data;
-      //   $scope.gallery.size = 'low_resolution';
-      //   $scope.gallery.countImages = 6;
-      // })
+    //Get my popular media
+    var endPoint = 'https://api.instagram.com/v1/users/self/media/liked?access_token='+token+'&callback=JSON_CALLBACK'; 
+    $http.jsonp(endPoint)
+    .success(function(resp){
+    //   //   // console.log(resp);
+      $scope.gallery = resp.data;
+      $scope.gallery.size = 'low_resolution';
+      $scope.gallery.countImages = 6;
+    //   // })
 
     })
-    .error(function(resp){
-      console.log(resp);
-    });
+    // .error(function(resp){
+    //   console.log(resp);
+    // });
   }
 
   $scope.action = function(token){
     //Get my followed_by
-    $http({
-      method: 'GET',
-      url: '/insta/obj.php?url=https://api.instagram.com/v1/users/self/follows?name=helenajewelry&name=helenajewelry&access_token='+token
-    }).success(function(resp){
-      console.info(resp, 'action');
-      // $scope.followed_by = resp.data;
-      // $scope.followed_by.countFollowers = 5;
-    })
+    var endPoint = 'https://api.instagram.com/v1/users/self/followed-by?access_token='+token+'&callback=JSON_CALLBACK'; 
+    $http.jsonp(endPoint).success(function(resp) {
+      console.log(resp.data);
+      $scope.profile.insta.followed_by = resp.data;
+    });
+
+
   }
 
+// Good sample
+// http://codepen.io/netsi1964/pen/drmkL?editors=1010
 
 
   $scope.exit = function() {
@@ -113,5 +119,5 @@ app.controller('objects', ['$rootScope', '$scope', '$http', function($rootScope,
     $rootScope.auth = false;
     window.location = '/';
   }
-  $scope.view();
+  $scope.view(respToken);
 }])

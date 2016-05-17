@@ -5,7 +5,7 @@
 ?>
 
 <!DOCTYPE html>
-<html ng-app="cint">
+<html>
 	<head>
 		<title>Cint - demo page</title>
 		<meta charset="utf-8">
@@ -59,7 +59,7 @@
       }
     </style>
 	</head>
-	<body>
+	<body ng-app="cint">
 
    <!-- Libs -->
  	 <script type="text/javascript" src="node_modules/angular/angular.min.js"></script>
@@ -79,7 +79,7 @@
           <!-- Instagram API -->
           <?include_once $currentPlugin['config'];?>
           <h3>Instagram</h3>
-          <a href="https://api.instagram.com/oauth/authorize/?client_id=cb2e702fde06407da2bfeb9ffdb6618f&redirect_uri=http://cint.dev&response_type=token&scope=basic+public_content+follower_list+relationships+likes ">Authorize</a>
+          <a href="https://api.instagram.com/oauth/authorize/?client_id=cb2e702fde06407da2bfeb9ffdb6618f&redirect_uri=http://cint.dev&response_type=token&scope=basic+comments+public_content+follower_list+relationships+likes ">Authorize</a>
         </div>
         <!-- Library -->
         <script type="text/javascript" src="<?=$currentPlugin['libs'];?>"></script>
@@ -87,9 +87,13 @@
 
     </div>
 
+    <div ng-view id="content">
+      <div class="load"></div>
+    </div>
+
     <div class="load" ng-if="auth.insta" ng-controller="objects">
       <div class="insta">
-        <a class="" ng-click="view()">
+        <a class="" ng-click="view(auth.token)">
           <i class="glyphicon glyphicon-refresh"></i> refresh
         </a>
         <a class="" ng-click="exit()">
@@ -113,9 +117,13 @@
         <div class="subscribers">
           <ul>
             <li ng-repeat="followed_by in profile.insta.followed_by | limitTo: followed_by.countFollowers">
-              {{followed_by.name}}
+              {{followed_by.username}}
             </li>
           </ul>
+        </div>
+
+        <div>
+          <button ng-click="action(auth.token)">CLick action</button>
         </div>
 
         <div class="gallery">

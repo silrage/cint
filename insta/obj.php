@@ -25,12 +25,12 @@
 	if(!$_REQUEST['name']) {
 		$resp = file_get_contents( $_REQUEST['url'] );
 		$jsonArr = json_decode($resp);
-		return json_output( $jsonArr );
+		return array(json_output( $jsonArr ), $_REQUEST['url']);
 	}
 		else
 	{
 		$str = getInstaID( $_REQUEST['name'], $_REQUEST['access_token'] );
-		return json_output( $str ); //array('name'=>$_REQUEST['name'], 'token'=>$_REQUEST['access_token']) );
+		return json_output( array('id'=>$str, 'name'=>$_REQUEST['name'], 'access_token'=>$_REQUEST['access_token']) );
 	}
 
   ?>
