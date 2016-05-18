@@ -8,6 +8,11 @@
      'enabled'=>TRUE,
      'config'=>'insta/main.php',
      'libs'=>'insta/libs/script.js'
+   ),
+   'vk'=>array(
+     'enabled'=>TRUE,
+     'config'=>'vk/main.php',
+     'libs'=>'vk/libs/script.js'
    )
  );
 ?>

@@ -96,12 +96,24 @@
     <div class="panel" ng-controller="authorize">
 
       <?if($plugins['insta']['enabled']):?>
-        <div class="insta" ng-if="!profile.insta">
+        <div class="insta col-md-4" ng-if="!profile.insta">
           <?$currentPlugin = $plugins['insta'];?>
           <!-- Instagram API -->
           <?include_once $currentPlugin['config'];?>
           <h3 class="lead">Instagram</h3>
           <a href="https://api.instagram.com/oauth/authorize/?client_id=cb2e702fde06407da2bfeb9ffdb6618f&redirect_uri=http://cint.dev&response_type=token&scope=basic+comments+public_content+follower_list+relationships+likes ">Authorize</a>
+        </div>
+        <!-- Library -->
+        <script type="text/javascript" src="<?=$currentPlugin['libs'];?>"></script>
+      <?endif;?>
+
+      <?if($plugins['vk']['enabled']):?>
+        <div class="vk col-md-4" ng-if="!profile.vk">
+          <?$currentPlugin = $plugins['vk'];?>
+          <!-- Instagram API -->
+          <?include_once $currentPlugin['config'];?>
+          <h3 class="lead">VK</h3>
+          <a href="https://oauth.vk.com/authorize?client_id=4927980&redirect_uri=http://cint.dev&display=popup">Authorize</a>
         </div>
         <!-- Library -->
         <script type="text/javascript" src="<?=$currentPlugin['libs'];?>"></script>

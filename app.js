@@ -26,6 +26,20 @@ app.controller('authorize', ['$rootScope', '$scope', '$location', '$http', funct
       checkAcTo = hash.substr(2, 12),
       respToken;
   ( checkAcTo == 'access_token' ) ? respToken = hash.substr(15, hash.length) : respToken = false;
+  
+  function getUrlVars(){
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++) {
+      hash = hashes[i].split('=');
+      vars.push(hash[0]);
+      vars[hash[0]] = hash[1];
+    }
+    return vars;
+  }
+
+  console.log( getUrlVars() );
+
   if(respToken) {
     $rootScope.auth = {
       token: respToken,
