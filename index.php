@@ -1,7 +1,20 @@
-<?php
- //Core v0.1 alpha
- include_once 'settings.php';
- $DEBUG = FALSE;
+<?php 
+  /**
+    ************** Checklist: **************************
+    * -View all followed_by & follows
+    * -Search followed_by users for changed profile
+    * -Search users from HASHTAG
+    * -Search users from GEO
+    * -Search users from LIKES & COMMENTS in MEDIA
+    * UPDATE POPULARITY
+    * -Set like
+    * -Set comment
+    * -Follow
+    ****************************************************
+    */
+  include_once 'settings.php';
+  $DEBUG = FALSE;
+  $ver = 'v0.1 alpha';
 ?>
 
 <!DOCTYPE html>
@@ -20,6 +33,15 @@
       }
       a {
         cursor: pointer;
+      }
+      .profile {
+        margin: 20px 0;
+        padding: 30px 0px;
+      }
+      .subscribers .title  {
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 20px;
       }
       .gallery {}
       .gallery .image-item {
@@ -69,7 +91,7 @@
  	 <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script> -->
 
 	 <div class="container">
-		<a href="http://cint.dev"><h1> <i class="glyphicon glyphicon-inbox"></i> Cint - content integrator</h1></a>
+		<a href="http://cint.dev"><h1> <i class="glyphicon glyphicon-inbox"></i> Cint - content integrator <?=$ver;?> </h1></a>
 
     <div class="panel" ng-controller="authorize">
 
@@ -78,7 +100,7 @@
           <?$currentPlugin = $plugins['insta'];?>
           <!-- Instagram API -->
           <?include_once $currentPlugin['config'];?>
-          <h3>Instagram</h3>
+          <h3 class="lead">Instagram</h3>
           <a href="https://api.instagram.com/oauth/authorize/?client_id=cb2e702fde06407da2bfeb9ffdb6618f&redirect_uri=http://cint.dev&response_type=token&scope=basic+comments+public_content+follower_list+relationships+likes ">Authorize</a>
         </div>
         <!-- Library -->
@@ -88,7 +110,6 @@
     </div>
 
     <div ng-view id="content">
-      <div class="load"></div>
     </div>
 
     <div class="load" ng-if="auth.insta" ng-controller="objects">
@@ -99,7 +120,7 @@
         <a class="" ng-click="exit()">
           <i class="glyphicon glyphicon-log-out"></i> exit
         </a>
-        <div class="profile row">
+        <div class="profile row bg-info">
           <div class="col-md-6">
             <img ng-src="{{profile.insta.profile_picture}}" />
           </div>
@@ -114,16 +135,17 @@
           </div>
         </div>
 
-        <div class="subscribers">
-          <ul>
-            <li ng-repeat="followed_by in profile.insta.followed_by | limitTo: followed_by.countFollowers">
-              {{followed_by.username}}
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <button ng-click="action(auth.token)">CLick action</button>
+        <div class="jumbotron">
+          <button ng-click="action(auth.token)" class="btn btn-info">Action</button>
+          <div class="subscribers" ng-show="profile.insta.followed_by">
+            <div class="title">Мои подписчики</div>
+            <ul>
+              <li ng-repeat="followed_by in profile.insta.followed_by | limitTo: followed_by.countFollowers">
+                <div><img ng-src="{{followed_by.profile_picture}}"/></div>
+                <div> {{followed_by.username}}</div>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div class="gallery">
