@@ -21,7 +21,7 @@ var routes = function($httpProvider, $routeProvider, $locationProvider, $http) {
   });
 };
 
-app.controller('authorize', ['$rootScope', '$scope', '$location', '$http', function($rootScope, $scope, $location, $http) {
+app.controller('authorize', ['$rootScope', '$scope', '$location', '$http', '$timeout', function($rootScope, $scope, $location, $http, $timeout) {
   var hash = window.location.hash,
       checkAcTo = hash.substr(2, 12),
       respToken;
@@ -38,16 +38,38 @@ app.controller('authorize', ['$rootScope', '$scope', '$location', '$http', funct
     return vars;
   }
 
-  console.log( getUrlVars() );
-
-  if(respToken) {
-    $rootScope.auth = {
-      token: respToken,
-      insta: true
+  //Get settings
+  $http({
+    url: '/settings.json'
+  })
+  .success(function(file){
+    $scope.settings = {
+      vk: file[0].plugins.vk
+    }
+  })
+  $scope.vk = {
+    Authorize: function(){
+      var sets = $scope.settings.vk;
+      window.location = 'https://oauth.vk.com/authorize?client_id='+sets.client_id+'&redirect_uri=http://cint.dev';
     }
   }
 
-  $scope.instaAuthorize = function() {
+  if(getUrlVars().code != undefined) {
+    $scope.settings.vk.code = getUrlVars().code;
+    var urlACT = 'https://oauth.vk.com/access_token?client_id='+sets.client_id+'&client_secret='+sets.client_secret+'&redirect_uri=http://cint.dev&code='+getUrlVars().code;
+    $http.get(urlACT).success(funtcion(resp){
+      console.log(resp);
+    })
+  }
+
+  // if(respToken) {
+  //   $rootScope.auth = {
+  //     token: respToken,
+  //     insta: true
+  //   }
+  // }
+
+  // $scope.instaAuthorize = function() {
     // var instaAuthURL = 'https://api.instagram.com/oauth/authorize/?client_id=cb2e702fde06407da2bfeb9ffdb6618f&redirect_uri=http://cint.dev&response_type=token';
     // var fd = new FormData();
     // $http.post(instaAuthURL, fd, {
@@ -60,7 +82,7 @@ app.controller('authorize', ['$rootScope', '$scope', '$location', '$http', funct
     // .error(function(resp){
     //   console.log(resp);
     // });
-  }
+  // }
 }])
 
 app.controller('objects', ['$rootScope', '$scope', '$http', function($rootScope, $scope, $http) {
@@ -146,10 +168,10 @@ app.controller('objects', ['$rootScope', '$scope', '$http', function($rootScope,
     //   console.info(resp.data, 'search');
     // });
 
-    var endPoint = 'https://www.facebook.com/tr/?id=1267338874&ev=PageView&dl=https%3A%2F%2Fwww.instagram.com%2Fsilrage%2Ffollowers%2F&rl=https%3A%2F%2Fwww.instagram.com%2Fsilrage%2F&if=false&ts=1463577938976&ud[external_id]=da1c75d22dc3c1e844f0d528585281aa37824ee8bd1a99ad32da40a5b52d5d1a&v=2.5.0&pv=visible';
-    $http.jsonp(endPoint).success(function(resp) {
-      console.info(resp.data, '?');
-    });
+    // var endPoint = 'https://www.facebook.com/tr/?id=1267338874&ev=PageView&dl=https%3A%2F%2Fwww.instagram.com%2Fsilrage%2Ffollowers%2F&rl=https%3A%2F%2Fwww.instagram.com%2Fsilrage%2F&if=false&ts=1463577938976&ud[external_id]=da1c75d22dc3c1e844f0d528585281aa37824ee8bd1a99ad32da40a5b52d5d1a&v=2.5.0&pv=visible';
+    // $http.jsonp(endPoint).success(function(resp) {
+    //   console.info(resp.data, '?');
+    // });
 
   }
 

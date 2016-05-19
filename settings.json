@@ -1,0 +1,11 @@
+[
+	{
+		"plugins": {
+			"instagram": {},
+			"vk": {
+				"client_secret": "rA7eVU9JjHpscl3OZCpL",
+				"client_id": "4927980"
+			}
+		}
+	}
+]

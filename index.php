@@ -2,7 +2,7 @@
   /**
     ************** Checklist: **************************
     * -View all followed_by & follows
-    * -Search followed_by users for changed profile
+    * X-Search followed_by users for changed profile
     * -Search users from HASHTAG
     * -Search users from GEO
     * -Search users from LIKES & COMMENTS in MEDIA
@@ -107,17 +107,13 @@
         <script type="text/javascript" src="<?=$currentPlugin['libs'];?>"></script>
       <?endif;?>
 
-      <?if($plugins['vk']['enabled']):?>
-        <div class="vk col-md-4" ng-if="!profile.vk">
-          <?$currentPlugin = $plugins['vk'];?>
-          <!-- Instagram API -->
-          <?include_once $currentPlugin['config'];?>
-          <h3 class="lead">VK</h3>
-          <a href="https://oauth.vk.com/authorize?client_id=4927980&redirect_uri=http://cint.dev&display=popup">Authorize</a>
-        </div>
-        <!-- Library -->
-        <script type="text/javascript" src="<?=$currentPlugin['libs'];?>"></script>
-      <?endif;?>
+
+      <div class="vk col-md-4" ng-if="settings.vk">
+        <!-- Instagram API -->
+        <h3 class="lead">VK</h3>
+        <a ng-click="vk.Authorize()">Authorize</a>
+      </div>
+
 
     </div>
 
