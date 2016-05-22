@@ -3,13 +3,16 @@
 var app = angular.module('cint', [
   'ngRoute'
 ]);
-
+var sets;
 var routes = function($httpProvider, $routeProvider, $locationProvider, $http) {
   $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
   $routeProvider
     .when('/', {
       templateUrl: 'index.php'
     })
+    // .when('/?code=:code', {
+    //   templateUrl: 'index.php'
+    // })
     //Error when not find page
     .otherwise({
       redirectTo: '/'
@@ -21,11 +24,15 @@ var routes = function($httpProvider, $routeProvider, $locationProvider, $http) {
   });
 };
 
-app.controller('authorize', ['$rootScope', '$scope', '$location', '$http', '$timeout', function($rootScope, $scope, $location, $http, $timeout) {
+app.controller('authorize', ['$rootScope', '$scope', '$location', '$routeParams', '$http', '$timeout', function($rootScope, $scope, $location, $routeParams, $http, $timeout) {
   var hash = window.location.hash,
       checkAcTo = hash.substr(2, 12),
       respToken;
   ( checkAcTo == 'access_token' ) ? respToken = hash.substr(15, hash.length) : respToken = false;
+
+  $scope.settings = {
+    vk: {}
+  };
   
   function getUrlVars(){
     var vars = [], hash;
@@ -38,28 +45,35 @@ app.controller('authorize', ['$rootScope', '$scope', '$location', '$http', '$tim
     return vars;
   }
 
+
+  //Core start
   //Get settings
   $http({
     url: '/settings.json'
+  }).success(function(file){
+    sets = file[0].plugins.vk;
+    mainLoad(  );
   })
-  .success(function(file){
-    $scope.settings = {
-      vk: file[0].plugins.vk
+
+  function mainLoad() {
+    console.log( $location );
+    console.log( $get );
+    console.log( getUrlVars().code )
+    if(getUrlVars().code != undefined) {
+      sets.code = getUrlVars().code;
+      var urlACT = 'https://oauth.vk.com/access_token?client_id='+sets.client_id+'&client_secret='+sets.client_secret+'&redirect_uri=http://cint.dev';
+      $http.jsonp(urlACT).success(function(resp){
+        console.log(resp);
+      })
     }
-  })
+    // console.log(sets)
+  }
   $scope.vk = {
     Authorize: function(){
-      var sets = $scope.settings.vk;
+      // console.log(sets)
+      // var sets = $scope.settings.vk;
       window.location = 'https://oauth.vk.com/authorize?client_id='+sets.client_id+'&redirect_uri=http://cint.dev';
     }
-  }
-
-  if(getUrlVars().code != undefined) {
-    $scope.settings.vk.code = getUrlVars().code;
-    var urlACT = 'https://oauth.vk.com/access_token?client_id='+sets.client_id+'&client_secret='+sets.client_secret+'&redirect_uri=http://cint.dev&code='+getUrlVars().code;
-    $http.get(urlACT).success(funtcion(resp){
-      console.log(resp);
-    })
   }
 
   // if(respToken) {

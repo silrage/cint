@@ -95,6 +95,8 @@
 
     <div class="panel" ng-controller="authorize">
 
+      <a href="/panel">Panel</a>
+
       <?if($plugins['insta']['enabled']):?>
         <div class="insta col-md-4" ng-if="!profile.insta">
           <?$currentPlugin = $plugins['insta'];?>
