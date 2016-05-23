@@ -8,7 +8,10 @@ var routes = function($httpProvider, $routeProvider, $locationProvider, $http) {
   $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
   $routeProvider
     .when('/', {
-      templateUrl: 'index.php'
+      templateUrl: '/main.php'
+    })
+    .when('/panel', {
+      templateUrl: '/panel.html'
     })
     // .when('/?code=:code', {
     //   templateUrl: 'index.php'
@@ -20,7 +23,7 @@ var routes = function($httpProvider, $routeProvider, $locationProvider, $http) {
   // Use HTML5 to History stack, without hashtag
   $locationProvider.html5Mode({
     enabled: true,
-    // requireBase: false
+    requireBase: false
   });
 };
 
@@ -52,7 +55,7 @@ app.controller('authorize', ['$rootScope', '$scope', '$location', '$routeParams'
     url: '/settings.json'
   }).success(function(file){
     sets = file[0].plugins.vk;
-    mainLoad(  );
+    // mainLoad(  );
   })
 
   function mainLoad() {
@@ -62,9 +65,9 @@ app.controller('authorize', ['$rootScope', '$scope', '$location', '$routeParams'
     if(getUrlVars().code != undefined) {
       sets.code = getUrlVars().code;
       var urlACT = 'https://oauth.vk.com/access_token?client_id='+sets.client_id+'&client_secret='+sets.client_secret+'&redirect_uri=http://cint.dev';
-      $http.jsonp(urlACT).success(function(resp){
-        console.log(resp);
-      })
+      // $http.jsonp(urlACT).success(function(resp){
+      //   console.log(resp);
+      // })
     }
     // console.log(sets)
   }
