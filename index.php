@@ -18,7 +18,7 @@
 ?>
 
 <!DOCTYPE html>
-<html>
+<html ng-app="cint">
 	<head>
 		<title>Cint - demo page</title>
 		<meta charset="utf-8">
@@ -27,7 +27,7 @@
 		<link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/styles.css">
 	</head>
-	<body ng-app="cint">
+	<body>
 
    <!-- Libs -->
  	 <script type="text/javascript" src="node_modules/angular/angular.min.js"></script>
@@ -42,6 +42,7 @@
       <a href="/panel">Panel</a>
 
     <div ng-view id="content">
+      Init page..
     </div>
 
 

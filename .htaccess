@@ -1,8 +1,10 @@
-# Rewrite for ngRoute
-# RewriteEngine On
-# RewriteBase   /
-# RewriteCond     %{REQUEST_URI} !^(/index\.php|/img|/js|/css|/robots\.txt|/favicon\.ico)
-# RewriteCond     %{REQUEST_FILENAME} !-f
-# RewriteCond     %{REQUEST_FILENAME} !-d
-# RewriteRule     .               /index.php              [L]
-# ErrorDocument 404 /404.html
+#ErrorDocument 404 /404.html
+<IfModule mod_rewrite.c>
+ ##Rewrite for ngRoute
+ RewriteEngine On
+ RewriteBase   /
+ RewriteCond     %{REQUEST_URI} !^(/index\.php|/img|/js|/css|/robots\.txt|/favicon\.ico)
+ RewriteCond     %{REQUEST_FILENAME} !-f
+ RewriteCond     %{REQUEST_FILENAME} !-d
+ RewriteRule     .               /index.php              [L]
+</IfModule>

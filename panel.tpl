@@ -1,4 +1,3 @@
-		<a href="http://cint.dev"><h1> <i class="glyphicon glyphicon-inbox"></i> Cint - content integrator <?=$ver;?> </h1></a>
 
 <div class="panel" ng-controller="authorize">
 
