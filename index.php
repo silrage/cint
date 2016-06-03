@@ -1,4 +1,4 @@
-<?php 
+<?php
   /**
     ************** Checklist: **************************
     * -View all followed_by & follows
@@ -12,7 +12,6 @@
     * -Follow
     ****************************************************
     */
-  include_once 'settings.php';
   $DEBUG = FALSE;
   $ver = 'v0.1 alpha';
 ?>
@@ -36,10 +35,9 @@
    <!-- <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
  	 <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script> -->
 
-	 <div class="container">
-		<a href="http://cint.dev"><h1> <i class="glyphicon glyphicon-inbox"></i> Cint - content integrator <?=$ver;?> </h1></a>
+	 <div class="container" ng-controller="getOBJ">
+		<a href="http://cint.dev">Home</a>
 
-      <a href="/panel">Panel</a>
 
     <div ng-view id="content">
       Init page..
