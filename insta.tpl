@@ -16,7 +16,7 @@
     </div>
 
     <div class="jumbotron">
-      <select ng-model="action" ng-options="option.name for option in instagram.ListActions()">
+      <select ng-model="action" ng-options="option.name for option in instaListActions">
         <option value="">----- Select action -----</option>
       </select>
       <button ng-click="instagram.Action(action)" class="btn btn-info">Action</button>

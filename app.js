@@ -130,12 +130,6 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         $scope.profile.insta = resp.data
       })
     },
-    ListActions: function(){
-      return [
-        {name: 'followed_by'},
-        {name: 'follows'},
-      ]
-    },
     Action: function(task){
       var token = authorized.instagram.token;
       if(task == 'followed_by') {
@@ -158,6 +152,10 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       delete authorized.instagram;
     }
   }
+  $scope.instaListActions = [
+    {name: 'followed_by'},
+    {name: 'follows'},
+  ];
 
   mainLoad( );
   $scope.auth = authorized;
