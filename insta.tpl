@@ -1,4 +1,4 @@
-<div ng-if="auth.instagram">
+<div ng-if="auth.instagram.token">
   <div class="insta">
     <div class="profile row bg-info">
       <div class="col-md-6">
@@ -16,7 +16,7 @@
     </div>
 
     <div class="jumbotron">
-      <select ng-model="action" ng-options="option.name for option in instaListActions">
+      <select ng-model="action" ng-options="option for option in instaListActions">
         <option value="">----- Select action -----</option>
       </select>
       <button ng-click="instagram.Action(action)" class="btn btn-info">Action</button>

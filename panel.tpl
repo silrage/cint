@@ -1,10 +1,10 @@
-<div class="panel row">
+
 
   <div class="insta col-md-4">
     <!-- Instagram API -->
     <h3 class="lead">Instagram</h3>
-    <a ng-click="instagram.Authorize()" ng-if="!auth.instagram">Authorize</a>
-    <div  ng-if="auth.instagram">
+    <a ng-click="instagram.Authorize()" ng-if="!auth.instagram.token">Authorize</a>
+    <div  ng-if="auth.instagram.token">
       <a class="" ng-click="instagram.Authorize()">
         <i class="glyphicon glyphicon-refresh"></i> refresh
       </a>
@@ -15,7 +15,7 @@
   </div>
 
   <div class="vk col-md-4" ng-if="!auth.vk">
-    <!-- Instagram API -->
+    <!-- VK API -->
     <h3 class="lead">VK</h3>
     <a ng-click="vk.Authorize()">Authorize</a>
     <div  ng-if="auth.vk">

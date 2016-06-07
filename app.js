@@ -129,8 +129,16 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       $http.jsonp(instaURL).success(function(resp) {
         $scope.profile.insta = resp.data
       })
+      var endPoint = 'https://api.instagram.com/v1/users/self/media/liked?access_token='+token+'&callback=JSON_CALLBACK';
+      $http.jsonp(endPoint)
+      .success(function(resp){
+        $scope.gallery = resp.data;
+        $scope.gallery.size = 'low_resolution';
+        $scope.gallery.countImages = 6;
+      })
     },
     Action: function(task){
+      console.log(task)
       var token = authorized.instagram.token;
       if(task == 'followed_by') {
         var endPoint = 'https://api.instagram.com/v1/users/self/followed-by?access_token='+token+'&callback=JSON_CALLBACK';
@@ -144,6 +152,41 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
           console.info(resp.data, 'follows');
           $scope.profile.insta.follows = resp.data;
         });
+      }else if(task == 'get_likes'){
+        var mediaId = '1078185748760136941_1267338874';
+        var endPoint = 'https://api.instagram.com/v1/media/'+mediaId+'/likes?access_token='+token+'&callback=JSON_CALLBACK';
+        $http.jsonp(endPoint).success(function(resp) {
+          console.info(resp.data, 'likes');
+          $scope.profile.insta.likes = resp.data;
+        });
+      }else if(task == 'user_info'){
+        var userId = '1390573092';
+        var endPoint = 'https://api.instagram.com/v1/users/'+userId+'?access_token='+token+'&callback=JSON_CALLBACK';
+        $http.jsonp(endPoint).success(function(resp) {
+          console.info(resp.data, 'info about user');
+          $scope.profile.insta.userGet = resp.data;
+        });
+      }else if(task == 'recent_posts'){
+        var userId = '1390573092';
+        var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/media/recent?access_token='+token+'&callback=JSON_CALLBACK';
+        $http.jsonp(endPoint).success(function(resp) {
+          console.info(resp.data, 'recent media');
+          $scope.profile.insta.userRecent = resp.data;
+        });
+      }else if(task == 'relationship'){
+        // Function fetch user status private or not {target_user_is_private: boolean}
+        var userId = '1390573092';
+        var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/relationship?access_token='+token+'&callback=JSON_CALLBACK';
+        $http.jsonp(endPoint).success(function(resp) {
+          console.info(resp.data, 'Relationship');
+          $scope.profile.insta.userRelationship = resp.data;
+        });
+      }else if(task == 'search'){
+        var userName = 'j._helena';
+        var endPoint = 'https://api.instagram.com/v1/users/search?q='+userName+'&access_token='+token+'&callback=JSON_CALLBACK';
+        $http.jsonp(endPoint).success(function(resp) {
+          console.info(resp.data, 'search');
+        });
       }
     },
     Exit: function() {
@@ -153,8 +196,13 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
     }
   }
   $scope.instaListActions = [
-    {name: 'followed_by'},
-    {name: 'follows'},
+    'followed_by',
+    'follows',
+    'get_likes',
+    'user_info',
+    'recent_posts',
+    'relationship',
+    'search'
   ];
 
   mainLoad( );
