@@ -181,6 +181,14 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
           console.info(resp.data, 'Relationship');
           $scope.profile.insta.userRelationship = resp.data;
         });
+      }else if(task == 'i_follow'){
+        // Function fetch user status private or not {target_user_is_private: boolean}
+        var userId = '1390573092';
+        var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/relationship?access_token='+token+'&action=follow&callback=JSON_CALLBACK';
+        $http.post(endPoint).success(function(resp) {
+          console.info(resp.data, 'Relationship');
+          $scope.profile.insta.userRelationship = resp.data;
+        });      
       }else if(task == 'search'){
         var userName = 'j._helena';
         var endPoint = 'https://api.instagram.com/v1/users/search?q='+userName+'&access_token='+token+'&callback=JSON_CALLBACK';
@@ -202,7 +210,8 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
     'user_info',
     'recent_posts',
     'relationship',
-    'search'
+    'search',
+    'i_follow'
   ];
 
   mainLoad( );
