@@ -3,7 +3,7 @@
   * Main instagram framework
    */
   //  print parse_url( $_SERVER['REQUEST_URI'] )['query'];
-   $url = 'https://api.instagram.com/oauth/access_token';
+  // $url = 'https://api.instagram.com/oauth/access_token';
 
    //SSL Enought
   //  $code = 

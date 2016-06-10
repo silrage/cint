@@ -185,9 +185,23 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         // Function fetch user status private or not {target_user_is_private: boolean}
         var userId = '1390573092';
         var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/relationship?access_token='+token+'&action=follow&callback=JSON_CALLBACK';
-        $http.post(endPoint).success(function(resp) {
+        var api = '/insta/obj.php';
+        $http({
+          url: api,
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          transformRequest: function(obj) {
+            var str = [];
+            for (var p in obj)
+              str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+            return str.join('&');
+          },
+          data: {
+            url: endPoint
+          }
+        }).success(function(resp) {
           console.info(resp.data, 'Relationship');
-          $scope.profile.insta.userRelationship = resp.data;
+          // $scope.profile.insta.userRelationship = resp.data;
         });      
       }else if(task == 'search'){
         var userName = 'j._helena';
