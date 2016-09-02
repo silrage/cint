@@ -36,8 +36,8 @@
  	 <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script> -->
 
 	 <div class="container" ng-controller="getOBJ">
-		<a href="http://cint.dev">Home</a>
 
+		<a href="http://cint.dev" class="btn btn-success">Home</a>
 
     <div ng-view id="content">
       Init page..

@@ -9,6 +9,10 @@ function getUrlVars( param ){
       vars.push(hash[0]);
       vars[hash[0]] = hash[1];
     }
+  }else if(param === 'vk') {
+    var code = 'code=';
+    var href = window.location.href;
+    vars.code = href.slice(href.indexOf(code) + code.length);
   }else{
     hash = 'access_token=';
     var href = window.location.href;
@@ -63,6 +67,17 @@ var sets = {},
     };
 
 App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
+.run(['$http', function($http){
+  //Core start
+  $http({
+    url: '/settings.json'
+  }).success(function(file){
+    sets = file[0].plugins;
+    // $scope.sets = sets;
+    // $scope.$emit('sets', sets)
+  })
+
+}])
 
 .controller('getOBJ', ['$rootScope', '$scope', '$http', '$timeout', '$routeParams', function($rootScope, $scope, $http, $timeout, $routeParams){
 
@@ -81,32 +96,78 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
           $scope[auth].SetToken(getUrlVars(auth).code);
         }
       }
+      if(auth === 'vk') {
+        // $scope.vk.View(getCookie('token_vk'));
+      }else{
+        $scope.instagram.View(getCookie('token_insta'));
+      }
     }
-    authorized.instagram = {token: getCookie('token_insta')};
-    $scope.instagram.View(getCookie('token_insta'));
+    // authorized.instagram = {token: getCookie('token_insta')};
+    // authorized.vk = {token: getCookie('token_vk')};
   }
 
-  //Core start
-  $http({
-    url: '/settings.json'
-  }).success(function(file){
-    sets = file[0].plugins;
-    $scope.sets = sets;
-  })
 
 
   $scope.vk = {
     Authorize: function(){
-      auth = vk;
+      auth = 'vk';
+      // console.log(sets)
+      // var sets = $scope.$on('sets', function(e, p) {
+      //   console.log(e)
+      //   console.log(p)
+        
+      // })
+      // var exist = getCookie('authorize');
+      setCookie('authorize', auth);
       window.location = 'https://oauth.vk.com/authorize?client_id='+sets.vk.client_id+'&redirect_uri=http://cint.dev';
     },
     SetToken: function(code){
-      var urlACT = 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev';
-      // $http.jsonp(urlACT).success(function(resp){
-      //   console.log(resp);
-      // })
+      $timeout(function(){
+        console.log(code)
+        var urlACT = 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code;
+        // var urlACT = 'https://oauth.vk.com/access_token';
+        // window.location = 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code;
+        $http({
+          method: 'POST',
+          url: '/vk/obj.php',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          data: {
+            url: urlACT
+            // client_id: sets.vk.client_id,
+            // client_secret: sets.vk.client_secret,
+            // redirect_uri: 'http://cint.dev',
+            // code: code
+          },
+          transformRequest: function(obj) {
+            var str = [];
+            for (var p in obj)
+              str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+            return str.join('&');
+          },
+        })
+        .then(function(resp){
+          if(resp.status === 200) {
+            console.log(resp.data.access_token)
+            setCookie('token_vk', resp.data.access_token);
+            authorized.vk = {token: resp.data};
+            
+          }
+        })
+
+        // $http.jsonp(urlACT)
+        // .then(function(resp){
+        //   console.log(resp);
+        // })
+      })
+    },
+    Exit: function() {
+      document.cookie = 'token_vk=false; path=/; expires=Sun, 22 Jun 1941 00:00:01 GMT;';
+      window.location = '/panel';
+      delete authorized.vk;
     }
   }
+
+
   $scope.instagram = {
     Authorize: function(){
       auth = 'instagram';
@@ -234,12 +295,21 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
 
 }])
 
+.directive('vkPanel', function(){
+  return {
+    restrict: 'E',
+    templateUrl: 'vk.tpl'
+  }
+})
 .directive('instaPanel', function(){
   return {
     restrict: 'E',
     templateUrl: 'insta.tpl'
   }
 })
+
+
+
 // .controller('objects', ['$rootScope', '$scope', '$http', function($rootScope, $scope, $http) {
 //   var respToken = $rootScope.auth.token;
 //   // console.log(respToken)

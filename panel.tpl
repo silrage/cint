@@ -14,11 +14,11 @@
     </div>
   </div>
 
-  <div class="vk col-md-4" ng-if="!auth.vk">
+  <div class="vk col-md-4">
     <!-- VK API -->
     <h3 class="lead">VK</h3>
-    <a ng-click="vk.Authorize()">Authorize</a>
-    <div  ng-if="auth.vk">
+    <a ng-click="vk.Authorize()" ng-if="!auth.vk.token">Authorize</a>
+    <div ng-if="auth.vk.token">
       <a class="" ng-click="vk.Authorize()">
         <i class="glyphicon glyphicon-refresh"></i> refresh
       </a>
