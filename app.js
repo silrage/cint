@@ -73,8 +73,6 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
     url: '/settings.json'
   }).success(function(file){
     sets = file[0].plugins;
-    // $scope.sets = sets;
-    // $scope.$emit('sets', sets)
   })
 
 }])
@@ -102,6 +100,9 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         $scope.instagram.View(getCookie('token_insta'));
       }
     }
+
+    $scope.vk.View('1f8652455775a3aa6b56c79d085f7afc6657b0393829dd7f7b0c11fffe3f512c5c7de1e4c3cb926d25fcd');
+
     // authorized.instagram = {token: getCookie('token_insta')};
     // authorized.vk = {token: getCookie('token_vk')};
   }
@@ -150,7 +151,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
             console.log(resp.data.access_token)
             setCookie('token_vk', resp.data.access_token);
             authorized.vk = {token: resp.data};
-            
+            $scope.vk.View(token);
           }
         })
 
@@ -159,6 +160,71 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         //   console.log(resp);
         // })
       })
+    },
+    View: function(token) {
+      // 1f8652455775a3aa6b56c79d085f7afc6657b0393829dd7f7b0c11fffe3f512c5c7de1e4c3cb926d25fcd
+      // uid - Author id
+      // var uid = '242341214'; //HJ
+      // var uid = '2741589'; //OZ
+
+      //Get alboms by uid or gid (when use gid attach prefix '-')
+      // var oid = '-59259151';
+      // var vkURL = 'https://api.vk.com/method/photos.getAlbums?owner_id='+oid+'&access_token='+token+'';
+
+      //Get photos by aid
+      // var oid = '-59259151';
+      // var aid = '180787831';
+      // var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
+
+      //Get groups by uid
+      // var vkURL = 'https://api.vk.com/method/groups.get?user_id='+uid+'&access_token='+token+'';
+
+      //Get group by id
+      // var gid = '59259151';
+      // var vkURL = 'https://api.vk.com/method/groups.getById?group_id='+gid+'&access_token='+token+'';
+
+
+      $http({
+        method: 'POST',
+        url: '/vk/obj.php',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: {
+          url: vkURL
+        },
+        transformRequest: function(obj) {
+          var str = [];
+          for (var p in obj)
+            str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+          return str.join('&');
+        },
+      })
+      .then(function(resp){
+        //When load albums load photos in albums
+        // var collection = resp.data.response;
+        console.log(resp)
+        // angular.forEach(collection, function(v, i) {
+        //   if(v.aid) {
+        //     var vkURLAlbom = 'https://api.vk.com/method/photos.get?owner_id='+uid+'&album_id='+v.aid+'&access_token='+token+'';
+        //     $http({
+        //       method: 'POST',
+        //       url: '/vk/obj.php',
+        //       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        //       data: {
+        //         url: vkURLAlbom
+        //       },
+        //       transformRequest: function(obj) {
+        //         var str = [];
+        //         for (var p in obj)
+        //           str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+        //         return str.join('&');
+        //       },
+        //     })
+        //     .then(function(get_albom) {
+        //       console.log(get_albom)
+        //     })
+        //   }
+        // })
+      });
     },
     Exit: function() {
       document.cookie = 'token_vk=false; path=/; expires=Sun, 22 Jun 1941 00:00:01 GMT;';
