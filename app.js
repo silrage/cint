@@ -81,6 +81,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
 
   $scope.profile = {};
 
+  //When load app need access to existing keys from cookie
   function mainLoad() {
     // console.log( plugin );
     // console.log( $location );
@@ -172,9 +173,28 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       // var vkURL = 'https://api.vk.com/method/photos.getAlbums?owner_id='+oid+'&access_token='+token+'';
 
       //Get photos by aid
-      // var oid = '-59259151';
-      // var aid = '180787831';
-      // var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
+      var oid = '-59259151';
+      var aid = '180787831';
+      var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
+
+      //Get all photos with max resolutions
+      function getPhotosMaxRes(stack) {
+        if(stack) {
+          var obj = [];
+          angular.forEach(stack, function(v, i) {
+            if(v.src_xxbig) {
+              obj[i] = v.src_xxbig;
+            }else if(v.src_xbig){
+              obj[i] = v.src_xbig;
+            }else if(v.src_big){
+              obj[i] = v.src_big;
+            }else{
+              obj[i] = v.src;
+            }
+          })
+          return obj;
+        }
+      }
 
       //Get groups by uid
       // var vkURL = 'https://api.vk.com/method/groups.get?user_id='+uid+'&access_token='+token+'';
@@ -200,8 +220,39 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       })
       .then(function(resp){
         //When load albums load photos in albums
-        // var collection = resp.data.response;
-        console.log(resp)
+        var collection = resp.data.response;
+        // console.log(resp)
+
+        //Get max resolution photos
+        var getMaxPhotos = getPhotosMaxRes(collection);
+        // console.log( getMaxPhotos )
+
+        // window.location = '/vk/obj.php?url=save&save='+JSON.stringify(getMaxPhotos);
+
+        $http({
+          method: 'POST',
+          url: '/vk/obj.php',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          data: {
+            url: vkURL,
+            save: JSON.stringify(getMaxPhotos),
+          },
+          transformRequest: function(obj) {
+            var str = [];
+            for (var p in obj)
+              str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+            return str.join('&');
+          },
+        })
+        .then(function(save){
+          if(save.status === 200) {
+            var anchor = '<a href="'+save.data.archive_link+'" target="_blank">Link</a>';
+            angular.element(document.querySelectorAll('body'))
+              .append( anchor )
+          }
+        })
+
+
         // angular.forEach(collection, function(v, i) {
         //   if(v.aid) {
         //     var vkURLAlbom = 'https://api.vk.com/method/photos.get?owner_id='+uid+'&album_id='+v.aid+'&access_token='+token+'';
