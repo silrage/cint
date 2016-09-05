@@ -102,7 +102,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       }
     }
 
-    $scope.vk.View('1f8652455775a3aa6b56c79d085f7afc6657b0393829dd7f7b0c11fffe3f512c5c7de1e4c3cb926d25fcd');
+    $scope.vk.View('c862e7aab5c99a00e60c9b0c1c252f836f2fda5e6372ba1802cd84d1e87cab6fe08321c044671b5646a7c');
 
     // authorized.instagram = {token: getCookie('token_insta')};
     // authorized.vk = {token: getCookie('token_vk')};
@@ -121,7 +121,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       // })
       // var exist = getCookie('authorize');
       setCookie('authorize', auth);
-      window.location = 'https://oauth.vk.com/authorize?client_id='+sets.vk.client_id+'&redirect_uri=http://cint.dev';
+      window.location = 'https://oauth.vk.com/authorize?client_id='+sets.vk.client_id+'&redirect_uri=http://cint.dev&scope=photos';
     },
     SetToken: function(code){
       $timeout(function(){
@@ -163,8 +163,8 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       })
     },
     View: function(token) {
-      // 1f8652455775a3aa6b56c79d085f7afc6657b0393829dd7f7b0c11fffe3f512c5c7de1e4c3cb926d25fcd
       // uid - Author id
+      var uid = '5876929'; //My
       // var uid = '242341214'; //HJ
       // var uid = '2741589'; //OZ
 
@@ -175,7 +175,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       //Get photos by aid
       var oid = '-59259151';
       var aid = '180787831';
-      var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
+      // var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
 
       //Get all photos with max resolutions
       function getPhotosMaxRes(stack) {
@@ -203,6 +203,10 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       // var gid = '59259151';
       // var vkURL = 'https://api.vk.com/method/groups.getById?group_id='+gid+'&access_token='+token+'';
 
+      //Create Album
+      //Require scope photos
+      // var vkURL = 'https://api.vk.com/method/photos.createAlbum?user_id='+uid+'&access_token='+token+'&title=Test+me&';
+
 
       $http({
         method: 'POST',
@@ -220,37 +224,34 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       })
       .then(function(resp){
         //When load albums load photos in albums
-        var collection = resp.data.response;
-        // console.log(resp)
+        // var collection = resp.data.response;
+        console.log(resp)
 
+        //Get archive with images
         //Get max resolution photos
-        var getMaxPhotos = getPhotosMaxRes(collection);
-        // console.log( getMaxPhotos )
-
-        // window.location = '/vk/obj.php?url=save&save='+JSON.stringify(getMaxPhotos);
-
-        $http({
-          method: 'POST',
-          url: '/vk/obj.php',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          data: {
-            url: vkURL,
-            save: JSON.stringify(getMaxPhotos),
-          },
-          transformRequest: function(obj) {
-            var str = [];
-            for (var p in obj)
-              str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-            return str.join('&');
-          },
-        })
-        .then(function(save){
-          if(save.status === 200) {
-            var anchor = '<a href="'+save.data.archive_link+'" target="_blank">Link</a>';
-            angular.element(document.querySelectorAll('body'))
-              .append( anchor )
-          }
-        })
+        // var getMaxPhotos = getPhotosMaxRes(collection);
+        // $http({
+        //   method: 'POST',
+        //   url: '/vk/obj.php',
+        //   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        //   data: {
+        //     url: vkURL,
+        //     save: JSON.stringify(getMaxPhotos),
+        //   },
+        //   transformRequest: function(obj) {
+        //     var str = [];
+        //     for (var p in obj)
+        //       str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+        //     return str.join('&');
+        //   },
+        // })
+        // .then(function(save){
+        //   if(save.status === 200) {
+        //     var anchor = '<a href="'+save.data.archive_link+'" target="_blank">Link</a>';
+        //     angular.element(document.querySelectorAll('body'))
+        //       .append( anchor )
+        //   }
+        // })
 
 
         // angular.forEach(collection, function(v, i) {
