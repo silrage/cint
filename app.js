@@ -1,5 +1,18 @@
 'use strict'
 
+/**
+ * =======================================================================
+ * = Project TODO's:
+ * =======================================================================
+ * 1. When load app start mainLoad() core function
+ * 2. LocalSettings save authorize keys
+ * 3. When authorize put service name & token for fast authorize
+ * 4. Actions cashed
+ * 5. Pages cashed
+ * 6. Responsive
+ * =======================================================================
+ */
+
 function getUrlVars( param ){
   var vars = {}, hash;
   if(param == undefined) {
@@ -102,7 +115,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       }
     }
 
-    $scope.vk.View('c862e7aab5c99a00e60c9b0c1c252f836f2fda5e6372ba1802cd84d1e87cab6fe08321c044671b5646a7c');
+    // $scope.vk.View('3cdc11197be4051171095d52d690fa66e1e4b31e2592e2079dcdc4c362b691107831e4f2e099605e86ded');
 
     // authorized.instagram = {token: getCookie('token_insta')};
     // authorized.vk = {token: getCookie('token_vk')};
@@ -168,13 +181,13 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       // var uid = '242341214'; //HJ
       // var uid = '2741589'; //OZ
 
-      //Get alboms by uid or gid (when use gid attach prefix '-')
+      //Get albums by uid or gid (when use gid attach prefix '-')
       // var oid = '-59259151';
       // var vkURL = 'https://api.vk.com/method/photos.getAlbums?owner_id='+oid+'&access_token='+token+'';
 
       //Get photos by aid
-      var oid = '-59259151';
-      var aid = '180787831';
+      // var oid = '-59259151';
+      // var aid = '180787831';
       // var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
 
       //Get all photos with max resolutions
@@ -197,7 +210,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       }
 
       //Get groups by uid
-      // var vkURL = 'https://api.vk.com/method/groups.get?user_id='+uid+'&access_token='+token+'';
+      var vkURL = 'https://api.vk.com/method/groups.get?user_id='+uid+'&access_token='+token+'';
 
       //Get group by id
       // var gid = '59259151';
@@ -206,7 +219,6 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       //Create Album
       //Require scope photos
       // var vkURL = 'https://api.vk.com/method/photos.createAlbum?user_id='+uid+'&access_token='+token+'&title=Test+me&';
-
 
       $http({
         method: 'POST',
@@ -224,7 +236,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       })
       .then(function(resp){
         //When load albums load photos in albums
-        // var collection = resp.data.response;
+        var collection = resp.data.response;
         console.log(resp)
 
         //Get archive with images
