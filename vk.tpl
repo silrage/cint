@@ -2,12 +2,11 @@
   <div class="vk">
     <div class="profile row bg-info">
       <div class="col-md-6">
-        <img ng-src="{{profile.vk.profile_picture}}" />
+        <img ng-src="{{profile.vk.photo_200}}" />
       </div>
       <div class="col-md-6">
-        <h3>{{profile.vk.username}}</h3>
         <p>
-          <b>{{profile.vk.full_name}}</b>
+          <b>{{profile.vk.first_name}} {{profile.vk.last_name}}</b>
         </p>
       </div>
     </div>

@@ -12,14 +12,14 @@
     * -Follow
     ****************************************************
     */
-  $DEBUG = FALSE;
-  $ver = 'v0.1 alpha';
+  
+  include "core.php";
 ?>
 
 <!DOCTYPE html>
 <html ng-app="cint">
 	<head>
-		<title>Cint - demo page</title>
+		<title>Sociaman - web app</title>
 		<meta charset="utf-8">
     <base href="/">
 
@@ -37,7 +37,7 @@
 
 	 <div class="container" ng-controller="getOBJ">
 
-		<a href="http://cint.dev" class="btn btn-success">Home</a>
+		<a href="http://cint.dev" class="btn btn-success" style="margin: 30px auto">Main page</a>
 
     <div ng-view id="content">
       Init page..

@@ -17,12 +17,12 @@
   <div class="vk col-md-4">
     <!-- VK API -->
     <h3 class="lead">VK</h3>
-    <a ng-click="vk.Authorize()" ng-if="!auth.vk.token">Authorize</a>
+    <a ng-click="VK.Authorize()" ng-if="!auth.vk.token">Authorize</a>
     <div ng-if="auth.vk.token">
-      <a class="" ng-click="vk.Authorize()">
+      <a class="" ng-click="VK.Authorize()">
         <i class="glyphicon glyphicon-refresh"></i> refresh
       </a>
-      <a class="" ng-click="vk.Exit()">
+      <a class="" ng-click="VK.Exit()">
         <i class="glyphicon glyphicon-log-out"></i> exit
       </a>
     </div>

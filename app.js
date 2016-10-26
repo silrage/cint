@@ -5,7 +5,7 @@
  * = Project TODO's:
  * =======================================================================
  * 1. When load app start mainLoad() core function
- * 2. LocalSettings save authorize keys
+ * 2. LocalSettings save auth status for fast update and authorize
  * 3. When authorize put service name & token for fast authorize
  * 4. Actions cashed
  * 5. Pages cashed
@@ -13,43 +13,80 @@
  * =======================================================================
  */
 
-function getUrlVars( param ){
-  var vars = {}, hash;
-  if(param == undefined) {
-    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-    for(var i = 0; i < hashes.length; i++) {
-      hash = hashes[i].split('=');
-      vars.push(hash[0]);
-      vars[hash[0]] = hash[1];
-    }
-  }else if(param === 'vk') {
-    var code = 'code=';
-    var href = window.location.href;
-    vars.code = href.slice(href.indexOf(code) + code.length);
-  }else{
-    hash = 'access_token=';
-    var href = window.location.href;
-    vars.code = href.slice(href.indexOf(hash) + hash.length);
-  }
-  return vars;
-}
-function setCookie(name, value) {
-  if(name != undefined) document.cookie = name+ "=" +value+ "; path=/;";
-}
-function getCookie(name) {
-  if(name != undefined) {
-    var matches = document.cookie.match(new RegExp(
-      "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-    ))
-    return matches ? decodeURIComponent(matches[1]) : undefined
-  }else{
+
+function supports_html5_storage() {
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+} catch (e) {
     return false;
   }
 }
 
+// function getUrlVars( param ){
+//   var vars = {}, hash;
+//   if(param == undefined) {
+//     var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+//     for(var i = 0; i < hashes.length; i++) {
+//       hash = hashes[i].split('=');
+//       vars.push(hash[0]);
+//       vars[hash[0]] = hash[1];
+//     }
+//   }else if(param === 'vk') {
+//     var code = 'code=';
+//     var href = window.location.href;
+//     vars.code = href.slice(href.indexOf(code) + code.length);
+//   }else{
+//     hash = 'access_token=';
+//     var href = window.location.href;
+//     vars.code = href.slice(href.indexOf(hash) + hash.length);
+//   }
+//   return vars;
+// }
+
+function safe_key(module) {
+  var key;
+  if(module === 'VK') {
+    var spl = 'code=';
+    var href = window.location.href;
+    key = href.slice(href.indexOf(spl) + spl.length);
+  }
+  return key;
+}
+
+function connect(url, transport) {
+  return transport({
+    method: 'POST',
+    url: '/vk/obj.php',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    data: {
+      url: url
+    },
+    transformRequest: function(obj) {
+      var str = [];
+      for (var p in obj)
+        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+      return str.join('&');
+    },
+  })
+}
+
+// function setCookie(name, value) {
+//   if(name != undefined) document.cookie = name+ "=" +value+ "; path=/;";
+// }
+// function getCookie(name) {
+//   if(name != undefined) {
+//     var matches = document.cookie.match(new RegExp(
+//       "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+//     ))
+//     return matches ? decodeURIComponent(matches[1]) : undefined
+//   }else{
+//     return false;
+//   }
+// }
+
 var sets = {},
-    auth,
     authorized = {},
+    profile = {},
     App = angular.module('cint', [
       'ngRoute'
     ]),
@@ -57,7 +94,7 @@ var sets = {},
       $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
       $routeProvider
         .when('/', {
-          templateUrl: '/main.tpl'
+          templateUrl: '/main.php'
         })
         .when('/access_token=:token', {
           templateUrl: '/panel.tpl'
@@ -90,30 +127,68 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
 
 }])
 
-.controller('getOBJ', ['$rootScope', '$scope', '$http', '$timeout', '$routeParams', function($rootScope, $scope, $http, $timeout, $routeParams){
-
-  $scope.profile = {};
+.controller('getOBJ', ['$rootScope', '$scope', '$http', '$timeout', '$routeParams', '$location', function($rootScope, $scope, $http, $timeout, $routeParams, $location){
 
   //When load app need access to existing keys from cookie
   function mainLoad() {
+    //Check browser for access storage
+    if(supports_html5_storage()) {
+      //Check session and tokens
+      if(localStorage.getItem('authorize')) {
+        //Get auth string for save keys
+        var auth = localStorage.getItem('authorize');
+        //Convert & save keys function
+        switch (auth) {
+          case "VK":
+            console.log('VK auth processing..');
+            var code = safe_key("VK");
+            //Clean url
+            $location.path('/panel')
+            $location.search('')
+            $scope.VK.SetToken(code);
+          break;
+
+          default:
+            localStorage.removeItem('authorize');
+          break;
+        }
+      }else{
+        //When find VK token
+        if(localStorage.getItem('vk_token')) {
+          var token = localStorage.getItem('vk_token');
+          authorized.vk = {token: token};
+          //Update fields
+          connect("https://api.vk.com/method/users.get?fields=photo_200&access_token="+token, $http)
+            .then(function(resp){
+              if(resp.data.response != undefined) {
+                profile.vk = resp.data.response[0];
+                $scope.profile.vk = resp.data.response[0];
+              }
+            })
+        }
+      }
+    }else{
+      Message.View('No access local storage. Check browser for work this app.', false);
+    }
+    // console.log( supports_html5_storage() );
     // console.log( plugin );
     // console.log( $location );
     // console.log( $get );
     // console.log( getUrlVars().code )
-    auth = getCookie('authorize');
-    if(auth) {
-      if(getUrlVars(auth).code != undefined) {
-        if(getCookie('authorize')) {
-          // console.log($scope);
-          $scope[auth].SetToken(getUrlVars(auth).code);
-        }
-      }
-      if(auth === 'vk') {
-        // $scope.vk.View(getCookie('token_vk'));
-      }else{
-        $scope.instagram.View(getCookie('token_insta'));
-      }
-    }
+    // auth = getCookie('authorize');
+    // if(auth) {
+    //   if(getUrlVars(auth).code != undefined) {
+    //     if(getCookie('authorize')) {
+    //       // console.log($scope);
+    //       $scope[auth].SetToken(getUrlVars(auth).code);
+    //     }
+    //   }
+    //   if(auth === 'vk') {
+    //     // $scope.vk.View(getCookie('token_vk'));
+    //   }else{
+    //     $scope.instagram.View(getCookie('token_insta'));
+    //   }
+    // }
 
     // $scope.vk.View('3cdc11197be4051171095d52d690fa66e1e4b31e2592e2079dcdc4c362b691107831e4f2e099605e86ded');
 
@@ -121,11 +196,15 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
     // authorized.vk = {token: getCookie('token_vk')};
   }
 
+  var Message = {
+    View: function(str, dialog){
+      console.log(str);
+    }
+  };
 
 
-  $scope.vk = {
+  $scope.VK = {
     Authorize: function(){
-      auth = 'vk';
       // console.log(sets)
       // var sets = $scope.$on('sets', function(e, p) {
       //   console.log(e)
@@ -133,51 +212,64 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         
       // })
       // var exist = getCookie('authorize');
-      setCookie('authorize', auth);
+      
+      //Set authorize processing - VK;
+      localStorage.setItem('authorize', 'VK');
+
+      //When success auth location return and MainLoad set keys
       window.location = 'https://oauth.vk.com/authorize?client_id='+sets.vk.client_id+'&redirect_uri=http://cint.dev&scope=photos';
     },
     SetToken: function(code){
-      $timeout(function(){
-        console.log(code)
-        var urlACT = 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code;
-        // var urlACT = 'https://oauth.vk.com/access_token';
-        // window.location = 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code;
-        $http({
-          method: 'POST',
-          url: '/vk/obj.php',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          data: {
-            url: urlACT
-            // client_id: sets.vk.client_id,
-            // client_secret: sets.vk.client_secret,
-            // redirect_uri: 'http://cint.dev',
-            // code: code
-          },
-          transformRequest: function(obj) {
-            var str = [];
-            for (var p in obj)
-              str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-            return str.join('&');
-          },
-        })
-        .then(function(resp){
-          if(resp.status === 200) {
-            console.log(resp.data.access_token)
-            setCookie('token_vk', resp.data.access_token);
-            authorized.vk = {token: resp.data};
-            $scope.vk.View(token);
-          }
-        })
+      if(code != null) {
+        $timeout(function(){
+          // console.log(code)
+          var urlACT = 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code;
+          // var urlACT = 'https://oauth.vk.com/access_token';
+          // window.location = 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code;
+          $http({
+            method: 'POST',
+            url: '/vk/obj.php',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            data: {
+              url: urlACT
+            },
+            transformRequest: function(obj) {
+              var str = [];
+              for (var p in obj)
+                str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+              return str.join('&');
+            },
+          })
+          .then(function(resp){
+            if(resp.status === 200) {
+              if(resp.data.access_token != null) {
+                var token = resp.data.access_token;
+                localStorage.setItem('vk_token', token);
+                localStorage.setItem('vk_uid', resp.data.user_id);
+                localStorage.removeItem('authorize');
 
-        // $http.jsonp(urlACT)
-        // .then(function(resp){
-        //   console.log(resp);
-        // })
-      })
+                //Set profile stack
+                connect("https://api.vk.com/method/users.get?fields=photo_200&access_token="+token, $http)
+                  .then(function(resp){
+                    if(resp.data.response != undefined) {
+                      profile.vk = resp.data.response[0];
+                      $scope.profile.vk = resp.data.response[0];
+                    }
+                  })
+
+                authorized.vk = {token: token};
+                $scope.VK.View(token);
+              }
+            }
+          })
+        })
+      }
     },
     View: function(token) {
+      Message.View('auth success', false)
       // uid - Author id
-      var uid = '5876929'; //My
+      var uid = localStorage.getItem('vk_uid'); //'5876929'; //My
+
       // var uid = '242341214'; //HJ
       // var uid = '2741589'; //OZ
 
@@ -237,7 +329,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       .then(function(resp){
         //When load albums load photos in albums
         var collection = resp.data.response;
-        console.log(resp)
+        // console.log(resp)
 
         //Get archive with images
         //Get max resolution photos
@@ -291,7 +383,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       });
     },
     Exit: function() {
-      document.cookie = 'token_vk=false; path=/; expires=Sun, 22 Jun 1941 00:00:01 GMT;';
+      // document.cookie = 'token_vk=false; path=/; expires=Sun, 22 Jun 1941 00:00:01 GMT;';
       window.location = '/panel';
       delete authorized.vk;
     }
@@ -420,8 +512,11 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
   ];
 
   mainLoad( );
+
   $scope.auth = authorized;
+  $scope.profile = profile;
   // console.log($scope.auth)
+  // console.log($scope.profile)
 
 }])
 
