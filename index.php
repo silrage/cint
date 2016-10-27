@@ -24,20 +24,18 @@
     <base href="/">
 
 		<link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <link rel="stylesheet" type="text/css" href="assets/styles.min.css">
 	</head>
 	<body>
 
    <!-- Libs -->
  	 <script type="text/javascript" src="node_modules/angular/angular.min.js"></script>
    <script type="text/javascript" src="node_modules/angular-route/angular-route.min.js"></script>
-   <script type="text/javascript" src="app.js"></script>
+   <script type="text/javascript" src="src/app.js"></script>
    <!-- <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
  	 <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script> -->
 
 	 <div class="container" ng-controller="getOBJ">
-
-		<a href="http://cint.dev" class="btn btn-success" style="margin: 30px auto">Main page</a>
 
     <div ng-view id="content">
       Init page..
