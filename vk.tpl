@@ -31,6 +31,7 @@
             action == 'get_albums' || 
             action == 'get_photos' || 
             action == 'get_comments' ||
+            action == 'copy_photos' ||
             action == 'push_photos' ||
             action == 'save_photos' "
             >
@@ -40,11 +41,20 @@
             class="field"
             ng-if="
             action == 'get_photos' ||
+            action == 'copy_photos' ||
             action == 'push_photos' ||
             action == 'save_photos'
             "
             >
             <input name="album" type="text" ng-model="VK.Fields.album" placeholder="Album ID" />
+          </div>
+          <div
+            class="field"
+            ng-if="action == 'copy_photos'"
+            >
+            <label>Destination</label>
+            <input name="destination_group" type="text" ng-model="VK.Fields.destination_group" placeholder="Destination Group ID" />
+            <input name="destionation_album" type="text" ng-model="VK.Fields.destination_album" placeholder="Destination Album ID" />
           </div>
           <div
             class="field"

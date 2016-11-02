@@ -261,8 +261,10 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       window.location = 'https://oauth.vk.com/authorize?client_id='+sets.vk.client_id+'&redirect_uri=http://cint.dev&scope=photos';
     },
     Fields: {
-      group: "73586529",
-      album: "237714121",
+      group: "30666517",
+      album: "144727247",
+      destination_group: "73586529",
+      destination_album: "237714121",
       photo: "",
       photoFile: {}
     },
@@ -332,6 +334,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         'get_albums',
         'get_photos',
         'get_comments',
+        'copy_photos',
         'push_photos',
         'save_photos',
       ];
@@ -433,6 +436,26 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
           });
         }
       }
+      else if(task === 'copy_photos') {
+        //Simple func to override processing to copy photos in albom
+        // console.log(this.Fields);
+        if(oid != '' && aid != '') {
+          connect(
+            {
+              url: 'copy',
+              task: 'copy'
+            },
+            $http,
+            {
+              group_id: -this.Fields.group,
+              album_id: this.Fields.album,
+              destination_group: this.Fields.destination_group,
+              destination_album: this.Fields.destination_album,
+              token: token,
+            }
+          )
+        }
+      }
       else if(task === 'push_photos') {
         //For save
         console.log(this.Fields)
@@ -464,7 +487,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
           // var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
           connect(
             {
-              url: 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&offset=0&count=100&access_token='+token
+              url: 'https://api.vk.com/method/photos.get?owner_id=-'+oid+'&album_id='+aid+'&offset=0&count=100&access_token='+token
             },
             $http,
             false
@@ -490,20 +513,20 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
           //       return str.join('&');
           //     },
           //   })
-            connect(
-              { url:'save' },
-              $http,
-              getMaxPhotos
-            )
-            .then(function(save){
-              //Get archive with images
-              if(save.status === 200) {
-                delete $scope.tasks.vk.active;
-                var anchor = '<a href="'+save.data.archive_link+'" target="_blank">Link</a>';
-                angular.element(document.querySelectorAll('body'))
-                  .append( anchor )
-              }
-            })
+            // connect(
+            //   { url:'save' },
+            //   $http,
+            //   getMaxPhotos
+            // )
+            // .then(function(save){
+            //   //Get archive with images
+            //   if(save.status === 200) {
+            //     delete $scope.tasks.vk.active;
+            //     var anchor = '<a href="'+save.data.archive_link+'" target="_blank">Link</a>';
+            //     angular.element(document.querySelectorAll('body'))
+            //       .append( anchor )
+            //   }
+            // })
           })
         }
       }
