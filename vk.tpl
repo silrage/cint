@@ -20,40 +20,54 @@
     </div>
 
     <div class="jumbotron">
-      <select ng-model="action" ng-options="option for option in vkListActions">
-        <option value="">----- Select action -----</option>
-      </select>
-      <div class="field-group">
-        <div
-          class="field"
-          ng-if="
-          action == 'get_albums' || 
-          action == 'get_photos' || 
-          action == 'get_comments' ||
-          action == 'save_photos' "
-          >
-          <input type="text" ng-model="VK.Fields.group" placeholder="Group ID" />
+      <form autocomplete="on">
+        <select ng-model="action" ng-options="option for option in vkListActions">
+          <option value="">----- Select action -----</option>
+        </select>
+        <div class="field-group">
+          <div
+            class="field"
+            ng-if="
+            action == 'get_albums' || 
+            action == 'get_photos' || 
+            action == 'get_comments' ||
+            action == 'push_photos' ||
+            action == 'save_photos' "
+            >
+            <input name="group" type="text" ng-model="VK.Fields.group" placeholder="Group ID" />
+          </div>
+          <div
+            class="field"
+            ng-if="
+            action == 'get_photos' ||
+            action == 'push_photos' ||
+            action == 'save_photos'
+            "
+            >
+            <input name="album" type="text" ng-model="VK.Fields.album" placeholder="Album ID" />
+          </div>
+          <div
+            class="field"
+            ng-if="action == 'push_photos' "
+            >
+            <input ng-model="VK.Fields.photoFile" name="file" type="file" fileread="VK.Fields.photoFile" multiple="5" />
+          </div>
+          <div
+            class="field"
+            ng-if="action == 'get_comments' "
+            >
+            <input type="text" ng-model="VK.Fields.photo" placeholder="Photo ID" />
+          </div>
         </div>
-        <div
-          class="field"
-          ng-if="action == 'get_photos' || action == 'save_photos' "
-          >
-          <input type="text" ng-model="VK.Fields.album" placeholder="Album ID" />
-        </div>
-        <div
-          class="field"
-          ng-if="action == 'get_comments' "
-          >
-          <input type="text" ng-model="VK.Fields.photo" placeholder="Photo ID" />
-        </div>
-      </div>
-      <button ng-click="VK.Action(action)" class="btn btn-info">Action</button>
+        <button ng-click="VK.Action(action)" class="btn btn-info">Action</button>
 
-      <div class="separator"></div>
+        <div class="separator"></div>
 
-      <div class="result">
-        {{VK.Result}}
-      </div>
+        <div class="result">
+          <br>
+          <pre>{{VK.Result}}</pre>
+        </div>
+      </form>
     </div>
 
   </div>

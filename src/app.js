@@ -53,21 +53,32 @@ function safe_key(module) {
   return key;
 }
 
-function connect(url, transport) {
-  return transport({
-    method: 'POST',
-    url: '/vk/obj.php',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    data: {
-      url: url
-    },
-    transformRequest: function(obj) {
-      var str = [];
-      for (var p in obj)
-        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-      return str.join('&');
-    },
-  });
+function connect(params, transport, object) {
+  var url = '/vk/obj.php';
+  if(params.task != null) url+='?task='+params.task;
+  if(params.task === 'upload') {
+    url+='&url=upload';
+    return transport.post(url, object, {
+       transformRequest: angular.identity,
+       headers: {'Content-Type': undefined}
+    });
+  }else{
+    return transport({
+      method: 'POST',
+      url: url,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      data: {
+        url: params.url,
+        obj: JSON.stringify(object)
+      },
+      transformRequest: function(obj) {
+        var str = [];
+        for (var p in obj)
+          str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+        return str.join('&');
+      },
+    });
+  }
 }
 
 function getPhotosMaxRes(stack) {
@@ -182,13 +193,19 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
           var uid = localStorage.getItem('vk_uid');
           authorized.vk = {token: token};
           //Update fields
-          connect("https://api.vk.com/method/users.get?fields=photo_200,id&access_token="+token, $http)
-            .then(function(resp){
-              if(resp.data.response !== undefined) {
-                profile.vk = resp.data.response[0];
-                $scope.profile.vk = resp.data.response[0];
-              }
-            });
+          connect(
+            { url: "https://api.vk.com/method/users.get?fields=photo_200,id&access_token="+token },
+            $http,
+            false
+          )
+          .then(function(resp){
+            if(resp.data.error === undefined) {
+              profile.vk = resp.data.response[0];
+              $scope.profile.vk = resp.data.response[0];
+            }else{
+              Message.View(resp.data.error, false);
+            }
+          });
         }
       }
     }else{
@@ -244,9 +261,10 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       window.location = 'https://oauth.vk.com/authorize?client_id='+sets.vk.client_id+'&redirect_uri=http://cint.dev&scope=photos';
     },
     Fields: {
-      group: "",
-      album: "",
+      group: "73586529",
+      album: "237714121",
       photo: "",
+      photoFile: {}
     },
     Result: "",
     SetToken: function(code){
@@ -271,8 +289,9 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
           //   },
           // })
           connect(
-            'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code,
-            $http
+            { url: 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code },
+            $http,
+            false
           )
           .then(function(resp){
             if(resp.status === 200) {
@@ -284,8 +303,9 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
 
                 //Set profile stack
                 connect(
-                  "https://api.vk.com/method/users.get?fields=photo_200&access_token="+token,
-                  $http
+                  { url: "https://api.vk.com/method/users.get?fields=photo_200&access_token="+token },
+                  $http,
+                  false
                 )
                 .then(function(resp){
                   if(resp.data.response !== undefined) {
@@ -312,6 +332,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         'get_albums',
         'get_photos',
         'get_comments',
+        'push_photos',
         'save_photos',
       ];
       $scope.tasks.vk.active = task;
@@ -325,8 +346,9 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         // var vkURL = 'https://api.vk.com/method/groups.getById?group_id='+gid+'&access_token='+token+'';
         //Get groups by uid
         connect(
-          'https://api.vk.com/method/groups.get?user_id='+uid+'&extended=1&offset=0&count=10&access_token='+token,
-          $http
+          { url: 'https://api.vk.com/method/groups.get?user_id='+uid+'&extended=1&offset=0&count=10&access_token='+token },
+          $http,
+          false
         )
         .then(function(resp){
           delete $scope.tasks.vk.active;
@@ -342,11 +364,13 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         if(oid != '') {
           // var vkURL = 'https://api.vk.com/method/photos.getAlbums?owner_id='+oid+'&access_token='+token+'';
           connect(
-            'https://api.vk.com/method/photos.getAlbums?owner_id='+oid+'&offset=0&count=100&access_token='+token,
-            $http
+            { url: 'https://api.vk.com/method/photos.getAlbums?owner_id='+oid+'&offset=0&count=100&access_token='+token },
+            $http,
+            false
           )
           .then(function(resp){
             delete $scope.tasks.vk.active;
+            $scope.VK.Result = resp.data.response.sort();
             console.log(resp.data.response)
           });
         }
@@ -358,11 +382,13 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         if(oid != '' && aid != '') {
           // var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
           connect(
-            'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&offset=5&count=10&access_token='+token,
-            $http
+            { url: 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&offset=0&count=40&access_token='+token },
+            $http,
+            false
           )
           .then(function(resp){
             delete $scope.tasks.vk.active;
+            $scope.VK.Result = resp.data.response.sort();
             console.log(resp.data.response)
 
             // angular.forEach(collection, function(v, i) {
@@ -397,14 +423,35 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         if(oid != '' && pid != '') {
           // var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
           connect(
-            'https://api.vk.com/method/photos.getComments?owner_id='+oid+'&photo_id='+pid+'&count=10&access_token='+token,
-            $http
+            { url: 'https://api.vk.com/method/photos.getComments?owner_id='+oid+'&photo_id='+pid+'&count=10&access_token='+token },
+            $http,
+            false
           )
           .then(function(resp){
             delete $scope.tasks.vk.active;
             console.log(resp.data.response)
           });
         }
+      }
+      else if(task === 'push_photos') {
+        //For save
+        console.log(this.Fields)
+        var formData = new FormData();
+        formData.append('file', this.Fields.photoFile);
+        // connect(
+        // {
+        //   url:'https://pu.vk.com/c637319/upload.php?act=do_add&mid=5876929&aid=237714121&gid=73586529&hash=bac04c365bb46dd07bc66c6d429fdfd0&rhash=85b323b15fa09436904f8674a6402c2a&swfupload=1&api=1',
+        //   task:'upload'
+        // }, $http, formData)
+        var url = 'upload';
+        $http.post(
+          '/vk/obj.php?task=upload&url=upload&group_id='+this.Fields.group+'&album_id='+this.Fields.album+'&token='+token,
+          formData, {
+            transformRequest: angular.identity,
+            headers: {'Content-Type': undefined}
+          }
+        )
+        // console.log(this.Fields.photostack)
       }
       else if(task === 'save_photos') {
         // https://vk.com/album-102657965_221353328
@@ -416,8 +463,11 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         if(oid != '' && aid != '') {
           // var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
           connect(
-            'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&offset=0&count=100&access_token='+token,
-            $http
+            {
+              url: 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&offset=0&count=100&access_token='+token
+            },
+            $http,
+            false
           )
           .then(function(resp){
             console.log(resp.data.response)
@@ -425,21 +475,26 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
             var collection = resp.data.response;
             //Get all photos with max resolutions
             var getMaxPhotos = getPhotosMaxRes(collection);
-            $http({
-              method: 'POST',
-              url: '/vk/obj.php',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              data: {
-                url: 'vkURL',
-                save: JSON.stringify(getMaxPhotos),
-              },
-              transformRequest: function(obj) {
-                var str = [];
-                for (var p in obj)
-                  str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-                return str.join('&');
-              },
-            })
+          //   $http({
+          //     method: 'POST',
+          //     url: '/vk/obj.php',
+          //     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          //     data: {
+          //       url: 'vkURL',
+          //       save: JSON.stringify(getMaxPhotos),
+          //     },
+          //     transformRequest: function(obj) {
+          //       var str = [];
+          //       for (var p in obj)
+          //         str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+          //       return str.join('&');
+          //     },
+          //   })
+            connect(
+              { url:'save' },
+              $http,
+              getMaxPhotos
+            )
             .then(function(save){
               //Get archive with images
               if(save.status === 200) {
@@ -621,7 +676,20 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
   };
 })
 
-
+.directive("fileread", [function () {
+    return {
+        scope: {
+            fileread: "="
+        },
+        link: function (scope, element, attributes) {
+            element.bind("change", function (changeEvent) {
+                scope.$apply(function () {
+                    scope.fileread = changeEvent.target.files[0];
+                });
+            });
+        }
+    }
+}]);
 
 // .controller('objects', ['$rootScope', '$scope', '$http', function($rootScope, $scope, $http) {
 //   var respToken = $rootScope.auth.token;
