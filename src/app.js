@@ -99,6 +99,41 @@ function getPhotosMaxRes(stack) {
   }
 }
 
+function copyPhotos(fields, transport, token, offset, countMax) {
+  connect(
+    {
+      url: 'copy',
+      task: 'copy'
+    },
+    transport,
+    {
+      group_id: -fields.group,
+      album_id: fields.album,
+      destination_group: fields.destination_group,
+      destination_album: fields.destination_album,
+      token: token,
+      offset: offset,
+      count: countMax
+    }
+  )
+  .then(function(resp){
+    if(resp.data) {
+      if(offset+5 < countMax) {
+        // return copyPhotos(fields, transport, token, offset+5, countMax);
+      }else{
+
+        console.log('opa');
+        console.log(resp.data);
+      }
+      // if(resp.data.finish === 'false') {
+        
+      // }else{
+      // }
+    }
+  })
+}
+
+
 // function setCookie(name, value) {
 //   if(name != undefined) document.cookie = name+ "=" +value+ "; path=/;";
 // }
@@ -262,7 +297,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
     },
     Fields: {
       group: "30666517",
-      album: "144727247",
+      album: "202494715",
       destination_group: "73586529",
       destination_album: "237714121",
       photo: "",
@@ -438,22 +473,20 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       }
       else if(task === 'copy_photos') {
         //Simple func to override processing to copy photos in albom
-        // console.log(this.Fields);
+        var oid = this.Fields.group;
+        var aid = this.Fields.album;
+        var fields = this.Fields;
         if(oid != '' && aid != '') {
+          // Get max value count photos
           connect(
-            {
-              url: 'copy',
-              task: 'copy'
-            },
+            { url: 'https://api.vk.com/method/photos.get?owner_id=-'+oid+'&album_id='+aid+'&offset=0&count=1&v=5.60&access_token='+token },
             $http,
-            {
-              group_id: -this.Fields.group,
-              album_id: this.Fields.album,
-              destination_group: this.Fields.destination_group,
-              destination_album: this.Fields.destination_album,
-              token: token,
-            }
+            false
           )
+          .then(function(resp){
+            var count = resp.data.response.count;
+            copyPhotos(fields, $http, token, 0, count);
+          });
         }
       }
       else if(task === 'push_photos') {
@@ -493,7 +526,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
             false
           )
           .then(function(resp){
-            console.log(resp.data.response)
+            // console.log(resp.data.response)
             //When load albums load photos in albums
             var collection = resp.data.response;
             //Get all photos with max resolutions

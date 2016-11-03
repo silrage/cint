@@ -33,6 +33,22 @@
 		return json_decode($respload, TRUE);
 	}
 
+	function saveFiles($req) {
+		//Save files
+		$request = curl_init(
+			'https://api.vk.com/method/photos.save'
+		);
+		curl_setopt($request, CURLOPT_POST, TRUE
+		);
+		curl_setopt($request, CURLOPT_POSTFIELDS,
+		    $req
+		);
+		curl_setopt($request, CURLOPT_RETURNTRANSFER, TRUE);
+		$respsave = curl_exec($request);
+		curl_close($request);
+
+		return json_decode($respsave, TRUE);
+	}
 
 	if(!$_REQUEST['url']) return json_output(array('error'=>TRUE, 'message'=>'Bad request'));
 	if(!isset($_REQUEST['task'])) {
@@ -132,6 +148,7 @@
 			$destination_album = $obj['destination_album'];
 			$offset = $obj['offset'];
 			$token = $obj['token'];
+			$countMax = $obj['countMax'];
 
 			//File sets
 			$folder = '../uploads/';
@@ -155,27 +172,31 @@
 					if(isset($jsonArrLoad['response'])) {
 						// Parse images
 						$files = [];
+						$fileInit = array();
+						$tmpName = 0;
 						foreach($jsonArrLoad['response'] as $pic) {
 							// $fileOrig = fopen($jsonArrLoad['response'][33]['src_big'], "r");
 							//Get big original photo & caption text
 							$file = [
 								'link' => $pic['src_big'],
 								'caption' => $pic['text'],
+								'tempName' => $tmpName
 							];
 							array_push($files, $file);
+							$tmpName++;
 						}
 						unset($pic);
 
 
 						// Method for upload five photos per connect
-						$tmpName = 0;
 						foreach($files as $file) {
 							//Download file & save TEMP
 							$furl = $file['link'];
 							$fget = fopen($furl, 'r');
-							$fname = $folder.$tmpName.".".$fileType;
+							$fname = $folder.$file['tempName'].".".$fileType;
 							$f = file_put_contents($fname, $fget);
 							fclose($fget);
+							$fileInit[ 'file'.$file['tempName'] ] = '@'.realpath($fname);
 
 							// Load temp
 							// $fget = fopen($folder.$tmpName.".".$fileType, 'r');
@@ -196,50 +217,51 @@
 							
 
 							// fclose($fget);
-							$tmpName++;
 						}
 						unset($file);
 
-						$fileInit = array(
-					    	'file1' => '@' . realpath($folder."0.".$fileType),
-					    	'file2' => '@' . realpath($folder."1.".$fileType),
-					    	'file3' => '@' . realpath($folder."2.".$fileType),
-					    	'file4' => '@' . realpath($folder."3.".$fileType),
-					    	'file5' => '@' . realpath($folder."4.".$fileType),
-					    );
 						$jsonArrLoad = sendFiles(stripslashes($jsonArr['response']['upload_url']), $fileInit);
 
 						if(isset($jsonArrLoad['hash'])) {
-							//Delete TEMP
-							
-							unlink($fname);
+							$fu = json_decode(stripslashes( $jsonArrLoad['photos_list']), TRUE);
+							// return json_output($fu[0]);
+							foreach($files as $file) {
 
-							$req = array(
-						    	'group_id' => $destination_group,
-						    	'album_id' => $destination_album,
-						    	'server' => $jsonArrLoad['server'],
-						    	'photos_list' =>  $jsonArrLoad['photos_list'],
-						    	'caption' => $caption,
-						    	'hash' => $jsonArrLoad['hash'],
-						    	'access_token' => $token
-					    	);
-							//Save files
-							$request = curl_init( 
-								'https://api.vk.com/method/photos.save'
-							);
-							curl_setopt($request, CURLOPT_POST, TRUE
-							);
-							curl_setopt($request, CURLOPT_POSTFIELDS,
-							    $req
-							);
-							curl_setopt($request, CURLOPT_RETURNTRANSFER, TRUE);
-							$respsave = curl_exec($request);
-							curl_close($request);
-							$jsonArrSave = json_decode($respsave, TRUE);
 
-							if(!isset($jsonArrSave['response'])) {
-								return json_output( $jsonArrSave['response'] );
+								$req = array(
+							    	'group_id' => intval($destination_group),
+							    	'album_id' => intval($destination_album),
+							    	'server' => $jsonArrLoad['server'],
+							    	'photos_list' =>  $fu[$file['tempName']],
+							    	'caption' => $file['caption'],
+							    	'hash' => $jsonArrLoad['hash'],
+							    	'access_token' => $token
+						    	);
+
+								if($file['tempName'] == 1) return json_output(
+									$req
+									);
+								$jsonArrSave = saveFiles($req);
+								// return json_output( $jsonArrSave );
+								//Delete TEMP
+								unlink($folder.$file['tempName'].".".$fileType);
+
+								if(!isset($jsonArrSave['response'])) {
+									return json_output( $jsonArrSave['response'] );
+								}
 							}
+								// return json_output( [
+								// 	$fu,
+								// 	$files,
+							 //    	'group_id' => $destination_group,
+							 //    	'album_id' => $destination_album,
+							 //    	'server' => $jsonArrLoad['server'],
+							 //    	'photos_list' =>  $fu[$files[0]['tempName']],
+							 //    	'caption' => $files[0]['caption'],
+							 //    	'hash' => $jsonArrLoad['hash'],
+							 //    	'access_token' => $token
+								// 	] );
+
 						}
 
 
@@ -337,6 +359,7 @@
 						$jsonArr,
 						$jsonArrLoad,
 						$jsonArrSave,
+						'finish' => 'false',
 					) );
 				}else{
 					return json_output( array(
