@@ -13,8 +13,8 @@
         </p>
 
         <div class="info">
-          <p ng-if="!tasks.vk.active">Нет активных заданий</p>
-          <p ng-if="tasks.vk.active">Выполняется {{tasks.vk.active}}</p>
+          <p ng-if="!tasks.vk">Нет активных заданий</p>
+          <p ng-if="tasks.vk">Выполняется {{tasks.vk}}</p>
         </div>
       </div>
     </div>

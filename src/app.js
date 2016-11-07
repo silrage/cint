@@ -99,7 +99,10 @@ function getPhotosMaxRes(stack) {
   }
 }
 
-function copyPhotos(fields, transport, token, offset, countMax) {
+function copyPhotos(fields, transport, token, countMax, collection, taskmng) {
+  // console.log(collection);
+  // if(collection < 15) return copyPhotos(fields, transport, token, countMax, collection+5, taskmng);
+  // return
   connect(
     {
       url: 'copy',
@@ -112,23 +115,25 @@ function copyPhotos(fields, transport, token, offset, countMax) {
       destination_group: fields.destination_group,
       destination_album: fields.destination_album,
       token: token,
-      offset: offset,
+      offset: collection,
       count: countMax
     }
   )
   .then(function(resp){
     if(resp.data) {
-      if(offset+5 < countMax) {
-        // return copyPhotos(fields, transport, token, offset+5, countMax);
+      if(resp.data.count) {
+        var count = collection + parseInt(resp.data.count);
+        // console.log(count)
+        if(count < countMax) {
+          return copyPhotos(fields, transport, token, countMax, count, taskmng);
+        }else{
+          taskmng('vk', '');
+          return;
+        }
       }else{
-
-        console.log('opa');
-        console.log(resp.data);
+        taskmng('vk', '');
+        console.info(resp.data, 'ERROR');
       }
-      // if(resp.data.finish === 'false') {
-        
-      // }else{
-      // }
     }
   })
 }
@@ -181,7 +186,7 @@ var sets = {},
     };
 
 App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
-.run(['$http', function($http){
+.run(['$http', '$window', '$rootScope', function($http, $window, $rootScope){
   //Core start
   $http({
     url: '/settings.json'
@@ -189,13 +194,29 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
     sets = file[0].plugins;
   });
 
+
+  //Trigger for update current tasks
+  // window.tasks = {
+  //   vk: '',
+  //   insta: '',
+  // };
+
+  // $rootScope.$on('task', function(e, task){
+  //   // window.tasks.vk = task;
+  //   $rootScope.tasks.vk = '?';
+
+  // })
+
 }])
 
 .controller('getOBJ', ['$rootScope', '$scope', '$http', '$timeout', '$routeParams', '$location', function($rootScope, $scope, $http, $timeout, $routeParams, $location){
 
-  $scope.tasks = {
-    vk: {},
-    insta: {}
+  var taskmng = function(module, task){
+    $rootScope.tasks[module] = task;
+  }
+  $rootScope.tasks = {
+    vk: '',
+    insta: '',
   };
 
   //When load app need access to existing keys from cookie
@@ -373,9 +394,12 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         'push_photos',
         'save_photos',
       ];
-      $scope.tasks.vk.active = task;
+      // window.tasks.vk = task;
+      // $rootScope.tasks.vk.active = window.tasks.vk;
+      taskmng('vk', task);
+      // $rootScope.$emit('task', task)
       if(task === 'get_tasks_list') {
-        delete $scope.tasks.vk.active;
+        taskmng('vk', '');
         return ListActions;
       }
       else if(task === 'get_groups') {
@@ -389,7 +413,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
           false
         )
         .then(function(resp){
-          delete $scope.tasks.vk.active;
+          // window.tasks.vk = '';
           delete resp.data.response[0]; //Delete counter
           $scope.VK.Result = resp.data.response.sort();
           console.log($scope.VK.Result)
@@ -407,7 +431,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
             false
           )
           .then(function(resp){
-            delete $scope.tasks.vk.active;
+            // window.tasks.vk = '';
             $scope.VK.Result = resp.data.response.sort();
             console.log(resp.data.response)
           });
@@ -425,7 +449,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
             false
           )
           .then(function(resp){
-            delete $scope.tasks.vk.active;
+            // window.tasks.vk = '';
             $scope.VK.Result = resp.data.response.sort();
             console.log(resp.data.response)
 
@@ -466,7 +490,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
             false
           )
           .then(function(resp){
-            delete $scope.tasks.vk.active;
+            // window.tasks.vk = '';
             console.log(resp.data.response)
           });
         }
@@ -485,7 +509,8 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
           )
           .then(function(resp){
             var count = resp.data.response.count;
-            copyPhotos(fields, $http, token, 0, count);
+            copyPhotos(fields, $http, token, count, 0, taskmng)
+            
           });
         }
       }
@@ -569,6 +594,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       // var vkURL = 'https://api.vk.com/method/photos.createAlbum?user_id='+uid+'&access_token='+token+'&title=Test+me&';
 
       // var uid = '242341214'; //HJ
+      // window.tasks.vk = '';
 
     },
     View: function(token) {
@@ -581,6 +607,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       window.location = '/panel';
       localStorage.removeItem('vk_uid');
       localStorage.removeItem('vk_token');
+      // window.tasks.vk = '';
       delete $scope.auth.vk;
       delete authorized.vk;
     }

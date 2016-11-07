@@ -136,8 +136,13 @@
 			//File sets
 			$folder = '../uploads/';
 			$fileType = 'jpg';
+			$arrFilesLoaded = [];
 
-			// return json_output( [$f, "run"] );
+			// return json_output( [
+			// 	$obj,
+			// 	'count' => 5,
+			// 	"run"
+			// ]);
 
 			if(_isCurl()) {
 				//First get server url for upload photos
@@ -148,13 +153,14 @@
 
 				if(isset($jsonArr['response']['upload_url'])) {
 					//Load photos and create array for uploader
-					$url = 'https://api.vk.com/method/photos.get?owner_id='.$group_id.'&album_id='.$album_id.'&offset='.$offset.'&count=5&access_token='.$token;
+					$url = 'https://api.vk.com/method/photos.get?owner_id='.$group_id.'&album_id='.$album_id.'&offset='.$offset.'&count=1&access_token='.$token;
 					$respLoad = file_get_contents( $url );
 					$jsonArrLoad = json_decode($respLoad, TRUE);
 
 					if(isset($jsonArrLoad['response'])) {
 						// Parse images
 						$files = [];
+						$caption = "";
 						foreach($jsonArrLoad['response'] as $pic) {
 							// $fileOrig = fopen($jsonArrLoad['response'][33]['src_big'], "r");
 							//Get big original photo & caption text
@@ -162,6 +168,7 @@
 								'link' => $pic['src_big'],
 								'caption' => $pic['text'],
 							];
+							$caption = $file['caption'];
 							array_push($files, $file);
 						}
 						unset($pic);
@@ -175,6 +182,7 @@
 							$fget = fopen($furl, 'r');
 							$fname = $folder.$tmpName.".".$fileType;
 							$f = file_put_contents($fname, $fget);
+							array_push($arrFilesLoaded, $fname);
 							fclose($fget);
 
 							// Load temp
@@ -202,17 +210,18 @@
 
 						$fileInit = array(
 					    	'file1' => '@' . realpath($folder."0.".$fileType),
-					    	'file2' => '@' . realpath($folder."1.".$fileType),
-					    	'file3' => '@' . realpath($folder."2.".$fileType),
-					    	'file4' => '@' . realpath($folder."3.".$fileType),
-					    	'file5' => '@' . realpath($folder."4.".$fileType),
+					    	// 'file2' => '@' . realpath($folder."1.".$fileType),
+					    	// 'file3' => '@' . realpath($folder."2.".$fileType),
+					    	// 'file4' => '@' . realpath($folder."3.".$fileType),
+					    	// 'file5' => '@' . realpath($folder."4.".$fileType),
 					    );
 						$jsonArrLoad = sendFiles(stripslashes($jsonArr['response']['upload_url']), $fileInit);
 
 						if(isset($jsonArrLoad['hash'])) {
 							//Delete TEMP
-							
-							unlink($fname);
+							foreach($arrFilesLoaded as $name) {
+								unlink($name);
+							}
 
 							$req = array(
 						    	'group_id' => $destination_group,
@@ -333,6 +342,8 @@
 
 
 					return json_output( array(
+						'saved' => TRUE,
+						'count' => count($arrFilesLoaded),
 						$url,
 						$jsonArr,
 						$jsonArrLoad,
