@@ -103,6 +103,7 @@ function copyPhotos(fields, transport, token, countMax, collection, taskmng) {
   // console.log(collection);
   // if(collection < 15) return copyPhotos(fields, transport, token, countMax, collection+5, taskmng);
   // return
+  var owner_id = -fields.group;
   connect(
     {
       url: 'copy',
@@ -110,7 +111,7 @@ function copyPhotos(fields, transport, token, countMax, collection, taskmng) {
     },
     transport,
     {
-      group_id: -fields.group,
+      group_id: owner_id,
       album_id: fields.album,
       destination_group: fields.destination_group,
       destination_album: fields.destination_album,
@@ -124,6 +125,9 @@ function copyPhotos(fields, transport, token, countMax, collection, taskmng) {
       if(resp.data.count) {
         var count = collection + parseInt(resp.data.count);
         // console.log(count)
+        // localStorage.setItem('vk_copy__'+owner_id, 'test:'+owner_id);
+        // var s = localStorage.getItem('vk_copy__-30666517');
+        // console.log( s.split(',')[3] );
         if(count < countMax) {
           return copyPhotos(fields, transport, token, countMax, count, taskmng);
         }else{
