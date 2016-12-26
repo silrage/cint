@@ -50,6 +50,11 @@ function safe_key(module) {
     var href = window.location.href;
     key = href.slice(href.indexOf(spl) + spl.length);
   }
+  if(module === 'INSTA') {
+    var spl = 'access_token=';
+    var href = window.location.href;
+    key = href.slice(href.indexOf(spl) + spl.length);
+  }
   return key;
 }
 
@@ -242,6 +247,15 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
             $scope.VK.SetToken(code);
           break;
 
+          case "INSTA":
+            console.log('INSTA auth processing..');
+            var code = safe_key("INSTA");
+            //Clean url
+            $location.path('/panel');
+            $location.search('');
+            $scope.instagram.SetToken(code);
+          break;
+
           default:
             localStorage.removeItem('authorize');
           break;
@@ -262,6 +276,26 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
             if(resp.data.error === undefined) {
               profile.vk = resp.data.response[0];
               $scope.profile.vk = resp.data.response[0];
+            }else{
+              Message.View(resp.data.error, false);
+            }
+          });
+        }
+        //When find Insta token
+        if(localStorage.getItem('insta_token')) {
+          var token = localStorage.getItem('insta_token');
+          var uid = localStorage.getItem('insta_uid');
+          authorized.insta = {token: token};
+          //Update fields
+          connect(
+            { url: 'https://api.instagram.com/v1/users/self/?access_token='+token },
+            $http,
+            false
+          )
+          .then(function(resp){
+            if(resp.data.error === undefined) {
+              profile.insta = resp.data.data;
+              $scope.profile.insta = resp.data.data;
             }else{
               Message.View(resp.data.error, false);
             }
@@ -618,46 +652,57 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
   };
 
 
-  // $scope.instagram = {
-  //   Authorize: function(){
-  //     var auth = 'instagram';
-  //     //Set current authorize
-  //     setCookie('authorize', auth);
-  //     window.location = 'https://www.instagram.com/oauth/authorize/?client_id='+sets.instagram.client_id+'&redirect_uri=http://cint.dev&response_type=token&scope=basic+comments+public_content+follower_list+relationships+likes';
-  //   },
-  //   SetToken: function(token){
-  //     if(token !== undefined) {
-  //       setCookie('token_insta', token);
-  //       document.cookie = 'authorize=false; path=/; expires=Sun, 22 Jun 1941 00:00:01 GMT;';
-  //       window.location = '/panel';
-  //       //View profile
-  //       authorized.instagram = {token: token};
-  //       $scope.instagram.View(token);
-  //     }
-  //   },
-  //   View: function(token){
-  //     var instaURL = 'https://api.instagram.com/v1/users/self/?access_token='+token+'&callback=JSON_CALLBACK';
-  //     $http.jsonp(instaURL).success(function(resp) {
-  //       $scope.profile.insta = resp.data
-  //     })
-  //     var endPoint = 'https://api.instagram.com/v1/users/self/media/liked?access_token='+token+'&callback=JSON_CALLBACK';
-  //     $http.jsonp(endPoint)
-  //     .success(function(resp){
-  //       $scope.gallery = resp.data;
-  //       $scope.gallery.size = 'low_resolution';
-  //       $scope.gallery.countImages = 6;
-  //     });
-  //   },
-  //   Action: function(task){
-  //     console.log(task)
-  //     var token = authorized.instagram.token;
-  //     if(task == 'followed_by') {
-  //       var endPoint = 'https://api.instagram.com/v1/users/self/followed-by?access_token='+token+'&callback=JSON_CALLBACK';
-  //       $http.jsonp(endPoint).success(function(resp) {
-  //         console.info(resp.data, 'followed_by');
-  //         $scope.profile.insta.followed_by = resp.data;
-  //       });
-  //     }else if(task == 'follows'){
+  $scope.instagram = {
+    Authorize: function(){
+      //Set current authorize
+      localStorage.setItem('authorize', 'INSTA');
+      //When success auth location return and MainLoad set keys
+      window.location = 'https://api.instagram.com/oauth/authorize/?client_id='+sets.instagram.client_id+'&redirect_uri=http://cint.dev&response_type=token&scope=basic+comments+public_content+follower_list+relationships+likes';
+    },
+    SetToken: function(token){
+      if(token !== undefined) {
+          localStorage.setItem('insta_token', token);
+          localStorage.removeItem('authorize');
+          //Set profile stack
+          connect(
+            { url: 'https://api.instagram.com/v1/users/self/?access_token='+token },
+            $http,
+            false
+          )
+          .then(function(resp){
+            $timeout(function(){
+              if(resp.data !== undefined) {
+                  localStorage.setItem('insta_uid', resp.data.data.id);
+                  profile.insta = resp.data.data;
+                  $scope.profile.insta = resp.data.data;
+
+                  authorized.insta = {token: token};
+                  $scope.instagram.View(token);
+              }
+            })
+          });
+      }
+    },
+    View: function(token){
+      var endPoint = 'https://api.instagram.com/v1/users/self/media/liked?access_token='+token+'&callback=JSON_CALLBACK';
+      $http.jsonp(endPoint)
+      .success(function(resp){
+        $scope.gallery = resp.data;
+        $scope.gallery.size = 'low_resolution';
+        $scope.gallery.countImages = 6;
+      });
+    },
+    Action: function(task){
+      console.log(task)
+      var token = authorized.insta.token;
+      if(task == 'followed_by') {
+        var endPoint = 'https://api.instagram.com/v1/users/self/followed-by?access_token='+token+'&callback=JSON_CALLBACK';
+        $http.jsonp(endPoint).success(function(resp) {
+          console.info(resp.data, 'followed_by');
+          $scope.profile.insta.followed_by = resp.data;
+        });
+      }
+  //     else if(task == 'follows'){
   //       var endPoint = 'https://api.instagram.com/v1/users/self/follows?access_token='+token+'&callback=JSON_CALLBACK';
   //       $http.jsonp(endPoint).success(function(resp) {
   //         console.info(resp.data, 'follows');
@@ -670,21 +715,23 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
   //         console.info(resp.data, 'likes');
   //         $scope.profile.insta.likes = resp.data;
   //       });
-  //     }else if(task == 'user_info'){
-  //       var userId = '1390573092';
-  //       var endPoint = 'https://api.instagram.com/v1/users/'+userId+'?access_token='+token+'&callback=JSON_CALLBACK';
-  //       $http.jsonp(endPoint).success(function(resp) {
-  //         console.info(resp.data, 'info about user');
-  //         $scope.profile.insta.userGet = resp.data;
-  //       });
-  //     }else if(task == 'recent_posts'){
-  //       var userId = '1390573092';
-  //       var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/media/recent?access_token='+token+'&callback=JSON_CALLBACK';
-  //       $http.jsonp(endPoint).success(function(resp) {
-  //         console.info(resp.data, 'recent media');
-  //         $scope.profile.insta.userRecent = resp.data;
-  //       });
-  //     }else if(task == 'relationship'){
+      else if(task == 'user_info'){
+        var userName = 'krasnodar';
+        var endPoint = 'https://api.instagram.com/v1/users/search?q='+userName+'&access_token='+token+'&count=20';
+        $http.jsonp(endPoint).success(function(resp) {
+          console.info(resp.data, 'info about user');
+          $scope.profile.insta.userGet = resp.data;
+        });
+      }
+      else if(task == 'recent_posts'){
+        var userId = '1267338874';
+        var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/media/recent?access_token='+token+'&callback=JSON_CALLBACK';
+        $http.jsonp(endPoint).success(function(resp) {
+          console.info(resp.data, 'recent media');
+          $scope.profile.insta.userRecent = resp.data;
+        });
+      }
+      // else if(task == 'relationship'){
   //       // Function fetch user status private or not {target_user_is_private: boolean}
   //       var userId = '1390573092';
   //       var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/relationship?access_token='+token+'&callback=JSON_CALLBACK';
@@ -721,23 +768,22 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
   //         console.info(resp.data, 'search');
   //       });
   //     }
-  //   },
-  //   Exit: function() {
-  //     document.cookie = 'token_insta=false; path=/; expires=Sun, 22 Jun 1941 00:00:01 GMT;';
-  //     window.location = '/panel';
-  //     delete authorized.instagram;
-  //   }
-  // };
-  // $scope.instaListActions = [
-  //   'followed_by',
+    },
+    Exit: function() {
+      delete $scope.auth.insta;
+      delete authorized.insta;
+    }
+  };
+  $scope.instaListActions = [
+    'followed_by',
   //   'follows',
   //   'get_likes',
-  //   'user_info',
-  //   'recent_posts',
+    'user_info',
+    'recent_posts',
   //   'relationship',
   //   'search',
   //   'i_follow'
-  // ];
+  ];
 
   $scope.vkListActions = $scope.VK.Action('get_tasks_list');
 

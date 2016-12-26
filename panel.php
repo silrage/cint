@@ -14,8 +14,8 @@
     <div class="insta col-md-6">
       <!-- Instagram API -->
       <h3 class="lead">Instagram</h3>
-      <a ng-click="instagram.Authorize()" ng-if="!auth.instagram.token">Authorize</a>
-      <div  ng-if="auth.instagram.token">
+      <a ng-click="instagram.Authorize()" ng-if="!auth.insta.token">Authorize</a>
+      <div  ng-if="auth.insta.token">
         <a class="" ng-click="instagram.Authorize()">
           <i class="glyphicon glyphicon-refresh"></i> refresh
         </a>

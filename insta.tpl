@@ -1,4 +1,4 @@
-<div ng-if="auth.instagram.token">
+<div ng-if="auth.insta.token">
   <div class="insta">
     <div class="profile row bg-info">
       <div class="col-md-6">
