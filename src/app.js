@@ -131,7 +131,7 @@ function copyPhotos(fields, transport, token, countMax, collection, taskmng) {
         var count = collection + parseInt(resp.data.count);
         // console.log(count)
         // localStorage.setItem('vk_copy__'+owner_id, 'test:'+owner_id);
-        // var s = localStorage.getItem('vk_copy__-30666517');
+        // var s = localStorage.getItem('vk_copy__-1234567');
         // console.log( s.split(',')[3] );
         if(count < countMax) {
           return copyPhotos(fields, transport, token, countMax, count, taskmng);
@@ -325,7 +325,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
     //   }
     // }
 
-    // $scope.vk.View('3cdc11197be4051171095d52d690fa66e1e4b31e2592e2079dcdc4c362b691107831e4f2e099605e86ded');
+    // $scope.vk.View('');
 
     // authorized.instagram = {token: getCookie('token_insta')};
     // authorized.vk = {token: getCookie('token_vk')};
@@ -355,10 +355,10 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       window.location = 'https://oauth.vk.com/authorize?client_id='+sets.vk.client_id+'&redirect_uri=http://cint.dev&scope=photos';
     },
     Fields: {
-      group: "30666517",
-      album: "202494715",
-      destination_group: "73586529",
-      destination_album: "237714121",
+      group: "123456",
+      album: "123456",
+      destination_group: "1234567",
+      destination_album: "1234567",
       photo: "",
       photoFile: {}
     },
@@ -442,7 +442,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       }
       else if(task === 'get_groups') {
         //Get group by id
-        // var gid = '59259151';
+        // var gid = '123456';
         // var vkURL = 'https://api.vk.com/method/groups.getById?group_id='+gid+'&access_token='+token+'';
         //Get groups by uid
         connect(
@@ -459,8 +459,8 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       }
       else if(task === 'get_albums') {
         //Get albums by uid or gid (when use gid attach prefix '-')
-        // var oid = '-59259151';
-        var oid = this.Fields.group; //'-102657965';
+        // var oid = '-123456';
+        var oid = this.Fields.group; //'-123456';
         if(oid != '') {
           // var vkURL = 'https://api.vk.com/method/photos.getAlbums?owner_id='+oid+'&access_token='+token+'';
           connect(
@@ -477,7 +477,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       }
       else if(task === 'get_photos') {
         //Get photos by aid
-        var oid = this.Fields.group; //'-59259151';
+        var oid = this.Fields.group; //'-123456';
         var aid = this.Fields.album; //'180787831';
         if(oid != '' && aid != '') {
           // var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
@@ -518,7 +518,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       }
       else if(task === 'get_comments') {
         //Get comments by aid
-        var oid = this.Fields.group; //'-59259151';
+        var oid = this.Fields.group; //'-123456';
         var pid = this.Fields.photo; //'180787831';
         if(oid != '' && pid != '') {
           // var vkURL = 'https://api.vk.com/method/photos.get?owner_id='+oid+'&album_id='+aid+'&access_token='+token+'';
@@ -573,10 +573,10 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         // console.log(this.Fields.photostack)
       }
       else if(task === 'save_photos') {
-        // https://vk.com/album-102657965_221353328
+        // https://vk.com/album-123456_1234567
         //Get photos by aid
-        // var oid = '-102657965'; // '-59259151';
-        // var aid = '221353328'; //'180787831';
+        // var oid = '-123456'; // '-123456';
+        // var aid = '1234567'; //'180787831';
         var oid = this.Fields.group;
         var aid = this.Fields.album;
         if(oid != '' && aid != '') {
@@ -631,14 +631,11 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       //Require scope photos
       // var vkURL = 'https://api.vk.com/method/photos.createAlbum?user_id='+uid+'&access_token='+token+'&title=Test+me&';
 
-      // var uid = '242341214'; //HJ
-      // window.tasks.vk = '';
-
     },
     View: function(token) {
       Message.View('auth success', false);
       // uid - Author id
-      var uid = localStorage.getItem('vk_uid'); //'5876929'; //My
+      var uid = localStorage.getItem('vk_uid');
     },
     Exit: function() {
       // document.cookie = 'token_vk=false; path=/; expires=Sun, 22 Jun 1941 00:00:01 GMT;';
@@ -709,7 +706,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
   //         $scope.profile.insta.follows = resp.data;
   //       });
   //     }else if(task == 'get_likes'){
-  //       var mediaId = '1078185748760136941_1267338874';
+  //       var mediaId = '123456_7890';
   //       var endPoint = 'https://api.instagram.com/v1/media/'+mediaId+'/likes?access_token='+token+'&callback=JSON_CALLBACK';
   //       $http.jsonp(endPoint).success(function(resp) {
   //         console.info(resp.data, 'likes');
@@ -724,7 +721,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         });
       }
       else if(task == 'recent_posts'){
-        var userId = '1267338874';
+        var userId = '1234567';
         var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/media/recent?access_token='+token+'&callback=JSON_CALLBACK';
         $http.jsonp(endPoint).success(function(resp) {
           console.info(resp.data, 'recent media');
@@ -733,7 +730,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       }
       // else if(task == 'relationship'){
   //       // Function fetch user status private or not {target_user_is_private: boolean}
-  //       var userId = '1390573092';
+  //       var userId = '1234567';
   //       var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/relationship?access_token='+token+'&callback=JSON_CALLBACK';
   //       $http.jsonp(endPoint).success(function(resp) {
   //         console.info(resp.data, 'Relationship');
@@ -741,7 +738,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
   //       });
   //     }else if(task == 'i_follow'){
   //       // Function fetch user status private or not {target_user_is_private: boolean}
-  //       var userId = '1390573092';
+  //       var userId = '1234567';
   //       var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/relationship?access_token='+token+'&action=follow&callback=JSON_CALLBACK';
   //       var api = '/insta/obj.php';
   //       $http({
@@ -762,7 +759,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
   //         // $scope.profile.insta.userRelationship = resp.data;
   //       });      
   //     }else if(task == 'search'){
-  //       var userName = 'j._helena';
+  //       var userName = '';
   //       var endPoint = 'https://api.instagram.com/v1/users/search?q='+userName+'&access_token='+token+'&callback=JSON_CALLBACK';
   //       $http.jsonp(endPoint).success(function(resp) {
   //         console.info(resp.data, 'search');
@@ -835,8 +832,6 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
 //         insta: resp.data
 //     })
 
-//     //id_hj = 1390573092
-
 //     //Get my popular media
 //     var endPoint = 'https://api.instagram.com/v1/users/self/media/liked?access_token='+token+'&callback=JSON_CALLBACK';
 //     $http.jsonp(endPoint)
@@ -867,7 +862,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
     // });
 
     //Get likes from media
-    // var mediaId = '1078185748760136941_1267338874';
+    // var mediaId = '';
     // var endPoint = 'https://api.instagram.com/v1/media/'+mediaId+'/likes?access_token='+token+'&callback=JSON_CALLBACK';
     // $http.jsonp(endPoint).success(function(resp) {
     //   console.info(resp.data, 'likes');
@@ -875,7 +870,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
     // });
 
     //Get info about user
-    // var userId = '1390573092';
+    // var userId = '1234567';
     // var endPoint = 'https://api.instagram.com/v1/users/'+userId+'?access_token='+token+'&callback=JSON_CALLBACK';
     // $http.jsonp(endPoint).success(function(resp) {
     //   console.info(resp.data, 'info about user');
@@ -883,7 +878,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
     // });
 
     //Get most recent media by userId
-    // var userId = '1390573092';
+    // var userId = '1234567';
     // var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/media/recent?access_token='+token+'&callback=JSON_CALLBACK';
     // $http.jsonp(endPoint).success(function(resp) {
     //   console.info(resp.data, 'recent media');
@@ -892,7 +887,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
 
     //Relationship by userId
     // Function fetch user status private or not {target_user_is_private: boolean}
-    // var userId = '1390573092';
+    // var userId = '1234567';
     // var endPoint = 'https://api.instagram.com/v1/users/'+userId+'/relationship?access_token='+token+'&callback=JSON_CALLBACK';
     // $http.jsonp(endPoint).success(function(resp) {
     //   console.info(resp.data, 'Relationship');
@@ -900,7 +895,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
     // });
 
     //Search users by name
-    // var userName = 'j._helena';
+    // var userName = '';
     // var endPoint = 'https://api.instagram.com/v1/users/search?q='+userName+'&access_token='+token+'&callback=JSON_CALLBACK';
     // $http.jsonp(endPoint).success(function(resp) {
     //   console.info(resp.data, 'search');

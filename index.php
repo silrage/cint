@@ -23,14 +23,14 @@
 		<meta charset="utf-8">
     <base href="/">
 
-		<link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="assets/styles.min.css">
 	</head>
 	<body>
 
    <!-- Libs -->
- 	 <script type="text/javascript" src="node_modules/angular/angular.min.js"></script>
-   <script type="text/javascript" src="node_modules/angular-route/angular-route.min.js"></script>
+ 	 <script type="text/javascript" src="assets/angular/angular.min.js"></script>
+   <script type="text/javascript" src="assets/angular-route.min.js"></script>
    <script type="text/javascript" src="src/app.js"></script>
    <!-- <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
  	 <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script> -->
