@@ -1,4 +1,5 @@
 <?php
+
   /**
     ************** Checklist: **************************
     * -View all followed_by & follows
@@ -12,8 +13,8 @@
     * -Follow
     ****************************************************
     */
-  
-  include "core.php";
+
+  include "src/core.php";
 ?>
 
 <!DOCTYPE html>
@@ -21,15 +22,26 @@
 	<head>
 		<title>Sociaman - web app</title>
 		<meta charset="utf-8">
-    <base href="/">
+
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="-1">
+    <meta http-equiv="pragma" content="no-cache">
+
+    <base href="/cint/">
 
 		<link rel="stylesheet" type="text/css" href="assets/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="assets/styles.min.css">
+
+    <script type="text/javascript">
+      var vk = {
+        token: "<?=$vk['token'];?>"
+      };
+    </script>
 	</head>
 	<body>
 
    <!-- Libs -->
- 	 <script type="text/javascript" src="assets/angular/angular.min.js"></script>
+ 	 <script type="text/javascript" src="assets/angular.min.js"></script>
    <script type="text/javascript" src="assets/angular-route.min.js"></script>
    <script type="text/javascript" src="src/app.js"></script>
    <!-- <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>

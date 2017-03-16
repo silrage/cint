@@ -59,7 +59,7 @@ function safe_key(module) {
 }
 
 function connect(params, transport, object) {
-  var url = '/vk/obj.php';
+  var url = 'vk/obj.php';
   if(params.task != null) url+='?task='+params.task;
   if(params.task === 'upload') {
     url+='&url=upload';
@@ -111,7 +111,6 @@ function copyPhotos(fields, transport, token, countMax, collection, taskmng) {
   var owner_id = -fields.group;
   connect(
     {
-      url: 'copy',
       task: 'copy'
     },
     transport,
@@ -165,20 +164,17 @@ function copyPhotos(fields, transport, token, countMax, collection, taskmng) {
 var sets = {},
     authorized = {},
     profile = {},
-    App = angular.module('cint', [
-      'ngRoute'
-    ]),
     routes = function($httpProvider, $routeProvider, $locationProvider, $http) {
       $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
       $routeProvider
         .when('/', {
-          templateUrl: '/main.php'
+          templateUrl: 'main.php'
         })
         .when('/access_token=:token', {
-          templateUrl: '/panel.php'
+          templateUrl: 'panel.php'
         })
         .when('/panel', {
-          templateUrl: '/panel.php'
+          templateUrl: 'panel.php'
         })
         // .when('/?code=:code', {
         //   templateUrl: 'index.php'
@@ -194,14 +190,15 @@ var sets = {},
       });
     };
 
-App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
+angular.module('cint', ['ngRoute'])
+.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
 .run(['$http', '$window', '$rootScope', function($http, $window, $rootScope){
   //Core start
-  $http({
-    url: '/settings.json'
-  }).success(function(file){
-    sets = file[0].plugins;
-  });
+  // $http({
+  //   url: '/settings.json'
+  // }).success(function(file){
+  //   sets = file[0].plugins;
+  // });
 
 
   //Trigger for update current tasks
@@ -215,7 +212,6 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
   //   $rootScope.tasks.vk = '?';
 
   // })
-
 }])
 
 .controller('getOBJ', ['$rootScope', '$scope', '$http', '$timeout', '$routeParams', '$location', function($rootScope, $scope, $http, $timeout, $routeParams, $location){
@@ -230,6 +226,9 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
 
   //When load app need access to existing keys from cookie
   function mainLoad() {
+
+    if(vk.token != null) VK.userInfo();
+
     //Check browser for access storage
     if(supports_html5_storage()) {
       //Check session and tokens
@@ -338,8 +337,14 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
   };
 
 
-  $scope.VK = {
+  var VK = {
     Authorize: function(){
+      $http.get('vk/obj.php?task=auth').then(function(resp){
+        if(resp.data.status) {
+          window.location.href=resp.data.url;
+        }
+      })
+      return;
       // console.log(sets)
       // var sets = $scope.$on('sets', function(e, p) {
       //   console.log(e)
@@ -355,69 +360,93 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       window.location = 'https://oauth.vk.com/authorize?client_id='+sets.vk.client_id+'&redirect_uri=http://cint.dev&scope=photos';
     },
     Fields: {
-      group: "123456",
-      album: "123456",
-      destination_group: "1234567",
-      destination_album: "1234567",
+      // group: "123456",
+      // album: "123456",
+      // destination_group: "1234567",
+      // destination_album: "1234567",
+      group: "30666517",
+      album: "197117893",
+      destination_group: "58712113",
+      destination_album: "243810710",
       photo: "",
       photoFile: {}
     },
     Result: "",
-    SetToken: function(code){
-      if(code !== null) {
-        $timeout(function(){
-          // console.log(code)
-          // var urlACT = 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code;
-          // var urlACT = 'https://oauth.vk.com/access_token';
-          // window.location = 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code;
-          // $http({
-          //   method: 'POST',
-          //   url: '/vk/obj.php',
-          //   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          //   data: {
-          //     url: urlACT
-          //   },
-          //   transformRequest: function(obj) {
-          //     var str = [];
-          //     for (var p in obj)
-          //       str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-          //     return str.join('&');
-          //   },
-          // })
-          connect(
-            { url: 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code },
-            $http,
-            false
-          )
-          .then(function(resp){
-            if(resp.status === 200) {
-              if(resp.data.access_token !== null) {
-                var token = resp.data.access_token;
-                localStorage.setItem('vk_token', token);
-                localStorage.setItem('vk_uid', resp.data.user_id);
-                localStorage.removeItem('authorize');
+    userInfo: function(){
+      //Set profile stack
+      connect(
+        { 
+          task: 'custom',
+          url: "https://api.vk.com/method/users.get?fields=photo_200&access_token="+vk.token
+        },
+        $http,
+        false
+      )
+      .then(function(resp){
+        if(resp.data.out.response !== undefined) {
+          profile.vk = resp.data.out.response[0];
+          $scope.profile.vk = resp.data.out.response[0];
+        }
+      });
 
-                //Set profile stack
-                connect(
-                  { url: "https://api.vk.com/method/users.get?fields=photo_200&access_token="+token },
-                  $http,
-                  false
-                )
-                .then(function(resp){
-                  if(resp.data.response !== undefined) {
-                    profile.vk = resp.data.response[0];
-                    $scope.profile.vk = resp.data.response[0];
-                  }
-                });
-
-                authorized.vk = {token: token};
-                $scope.VK.View(token);
-              }
-            }
-          });
-        });
-      }
+      authorized.vk = {token: vk.token};
+      $scope.VK.View(vk.token);
     },
+    // SetToken: function(code){
+    //   if(code !== null) {
+    //     $timeout(function(){
+    //       // console.log(code)
+    //       // var urlACT = 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code;
+    //       // var urlACT = 'https://oauth.vk.com/access_token';
+    //       // window.location = 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code;
+    //       // $http({
+    //       //   method: 'POST',
+    //       //   url: '/vk/obj.php',
+    //       //   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    //       //   data: {
+    //       //     url: urlACT
+    //       //   },
+    //       //   transformRequest: function(obj) {
+    //       //     var str = [];
+    //       //     for (var p in obj)
+    //       //       str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+    //       //     return str.join('&');
+    //       //   },
+    //       // })
+    //       connect(
+    //         { url: 'https://oauth.vk.com/access_token?client_id='+sets.vk.client_id+'&client_secret='+sets.vk.client_secret+'&redirect_uri=http://cint.dev&code='+code },
+    //         $http,
+    //         false
+    //       )
+    //       .then(function(resp){
+    //         if(resp.status === 200) {
+    //           if(resp.data.access_token !== null) {
+    //             var token = resp.data.access_token;
+    //             localStorage.setItem('vk_token', token);
+    //             localStorage.setItem('vk_uid', resp.data.user_id);
+    //             localStorage.removeItem('authorize');
+
+    //             //Set profile stack
+    //             connect(
+    //               { url: "https://api.vk.com/method/users.get?fields=photo_200&access_token="+token },
+    //               $http,
+    //               false
+    //             )
+    //             .then(function(resp){
+    //               if(resp.data.response !== undefined) {
+    //                 profile.vk = resp.data.response[0];
+    //                 $scope.profile.vk = resp.data.response[0];
+    //               }
+    //             });
+
+    //             authorized.vk = {token: token};
+    //             $scope.VK.View(token);
+    //           }
+    //         }
+    //       });
+    //     });
+    //   }
+    // },
     Action: function(task) {
       var token = localStorage.getItem('vk_token');
       var uid = localStorage.getItem('vk_uid');
@@ -529,7 +558,7 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
           )
           .then(function(resp){
             // window.tasks.vk = '';
-            console.log(resp.data.response)
+            console.log(resp.data.out.response)
           });
         }
       }
@@ -541,13 +570,15 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
         if(oid != '' && aid != '') {
           // Get max value count photos
           connect(
-            { url: 'https://api.vk.com/method/photos.get?owner_id=-'+oid+'&album_id='+aid+'&offset=0&count=1&v=5.60&access_token='+token },
+            {
+              task: 'custom',
+              url: 'https://api.vk.com/method/photos.get?owner_id=-'+oid+'&album_id='+aid+'&offset=0&count=1&v=5.60&access_token='+vk.token },
             $http,
             false
           )
           .then(function(resp){
-            var count = resp.data.response.count;
-            copyPhotos(fields, $http, token, count, 0, taskmng)
+            var count = resp.data.out.response.count;
+            copyPhotos(fields, $http, vk.token, count, 0, taskmng)
             
           });
         }
@@ -638,15 +669,19 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
       var uid = localStorage.getItem('vk_uid');
     },
     Exit: function() {
-      // document.cookie = 'token_vk=false; path=/; expires=Sun, 22 Jun 1941 00:00:01 GMT;';
-      window.location = '/panel';
-      localStorage.removeItem('vk_uid');
-      localStorage.removeItem('vk_token');
-      // window.tasks.vk = '';
-      delete $scope.auth.vk;
-      delete authorized.vk;
+      connect({task: 'logout'}, $http, false)
+      .then(function(resp){
+        localStorage.removeItem('vk_uid');
+        localStorage.removeItem('vk_token');
+        // window.location = '/panel';
+        // window.tasks.vk = '';
+        delete $scope.auth.vk;
+        delete authorized.vk;
+      });
+      // // document.cookie = 'token_vk=false; path=/; expires=Sun, 22 Jun 1941 00:00:01 GMT;';
     }
   };
+  $scope.VK = VK;
 
 
   $scope.instagram = {
@@ -767,8 +802,11 @@ App.config(['$httpProvider', '$routeProvider', '$locationProvider', routes])
   //     }
     },
     Exit: function() {
-      delete $scope.auth.insta;
-      delete authorized.insta;
+      connect({task: 'logout'}, $http, false)
+      .then(function(resp){
+        delete $scope.auth.insta;
+        delete authorized.insta;
+      });
     }
   };
   $scope.instaListActions = [

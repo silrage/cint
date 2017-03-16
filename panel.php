@@ -1,9 +1,9 @@
-<?include "core.php";?>
+<?include "src/core.php";?>
 
 <div class="panel">
   <div class="row">
     <div class="col-md-12">
-      <a href="http://cint.dev" class="btn btn-success" style="margin: 30px auto">Main page</a>
+      <a href="<?=front_page;?>" class="btn btn-success" style="margin: 30px auto">Main page</a>
       <center>
         <h3><?=$app['name'];?></h3>
         <div class="ver"><?=$app['version'];?></div>
