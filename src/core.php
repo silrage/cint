@@ -18,8 +18,10 @@
 		'version' => 'v0.1 alpha',
 	];
 	$clean_path = substr( $_SERVER['REQUEST_URI'], 1, strpos(substr($_SERVER['REQUEST_URI'], 1, strlen($_SERVER['REQUEST_URI'])), '/') );
-	// var_dump();
 	$base_dir = $_SERVER['DOCUMENT_ROOT'].'/'.$clean_path;
+	$base_path = 'http://'.$_SERVER['HTTP_HOST'].'/'.$clean_path;
+	define(base_path, $base_path);
+	// var_dump($base_path);
 
 
 	/**
@@ -75,6 +77,7 @@
 		    // )
 		    $file
 		);
+		curl_setopt($request, CURLOPT_SAFE_UPLOAD, FALSE);
 		curl_setopt($request, CURLOPT_RETURNTRANSFER, TRUE);
 		$respload = curl_exec($request);
 		curl_close($request);
@@ -122,7 +125,7 @@
 					'uid'=>$resp['user_id']
 				];
 				// Clean url
-				header('Location: http://dir.dev/cint/panel');
+				header('Location: '.base_path.'/panel');
 				return;
 			}
 		}
@@ -135,7 +138,7 @@
 			switch ($plugin['name']) {
 				case 'vk':
 					$cur_plugin = $config['plugins']['vk'];
-					$redirect_uri = 'http://dir.dev/cint/panel';
+					$redirect_uri = base_path.'/panel';
 					if(isset($plugin['code'])) {
 						$auth = http('https://oauth.vk.com/access_token?client_id='.$cur_plugin['client_id'].'&client_secret='.$cur_plugin['client_secret'].'&redirect_uri='.$redirect_uri.'&code='.$plugin['code']);
 						return $auth;

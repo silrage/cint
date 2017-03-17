@@ -47,7 +47,7 @@
 			break;
 
 			case 'auth':
-				$url = 'https://oauth.vk.com/authorize?client_id='.client_id.'&redirect_uri=http://dir.dev/cint/panel&scope=photos';
+				$url = 'https://oauth.vk.com/authorize?client_id='.client_id.'&redirect_uri='.base_path.'/panel&scope=photos';
 				return json_output(['status'=>TRUE,'url'=>$url]);
 			break;
 
@@ -158,12 +158,14 @@
 				// 	'count' => 5,
 				// 	"run"
 				// ]);
-
 				if(_isCurl()) {
 					//First get server url for upload photos
 					$url = 'https://api.vk.com/method/photos.getUploadServer?group_id='.$destination_group.'&album_id='. $destination_album.'&access_token='.$token;
 
+					
 					$resp = file_get_contents( $url );
+
+					if(!isset($resp)) return json_output(['NO MEIDA']);
 					$jsonArr = json_decode($resp, TRUE);
 
 					if(isset($jsonArr['response']['upload_url'])) {
@@ -187,8 +189,6 @@
 								$caption = $file['caption'];
 								array_push($files, $file);
 							}
-							unset($pic);
-
 
 							// Method for upload five photos per connect
 							$tmpName = 0;
@@ -225,13 +225,15 @@
 							unset($file);
 
 							$fileInit = array(
-						    	'file1' => '@' . realpath($folder."0.".$fileType),
-						    	'file2' => '@' . realpath($folder."1.".$fileType),
-						    	'file3' => '@' . realpath($folder."2.".$fileType),
-						    	'file4' => '@' . realpath($folder."3.".$fileType),
-						    	'file5' => '@' . realpath($folder."4.".$fileType),
+						    	'file1' => curl_file_create(realpath($folder."0.".$fileType), 'image/jpeg','0.jpg'),
+						    	'file2' => curl_file_create(realpath($folder."1.".$fileType), 'image/jpeg','1.jpg'),
+						    	'file3' => curl_file_create(realpath($folder."2.".$fileType), 'image/jpeg','2.jpg'),
+						    	'file4' => curl_file_create(realpath($folder."3.".$fileType), 'image/jpeg','3.jpg'),
+						    	'file5' => curl_file_create(realpath($folder."4.".$fileType), 'image/jpeg','4.jpg'),
 						    );
 							$jsonArrLoad = sendFiles(stripslashes($jsonArr['response']['upload_url']), $fileInit);
+
+							// return json_output( [$fileInit, is_file(realpath($folder."0.".$fileType)), $jsonArrLoad ] );
 
 							if(isset($jsonArrLoad['hash'])) {
 								//Delete TEMP
