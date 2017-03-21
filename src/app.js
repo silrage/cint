@@ -128,16 +128,18 @@ function copyPhotos(fields, transport, token, countMax, collection, taskmng) {
     if(resp.data) {
       if(resp.data.count) {
         var count = collection + parseInt(resp.data.count);
+        
         // console.log(count)
         // localStorage.setItem('vk_copy__'+owner_id, 'test:'+owner_id);
         // var s = localStorage.getItem('vk_copy__-1234567');
         // console.log( s.split(',')[3] );
+
         if(count < countMax) {
           return copyPhotos(fields, transport, token, countMax, count, taskmng);
-        }else{
-          taskmng('vk', '');
-          return;
         }
+        // Finish copy
+        taskmng('vk', '');
+        return;
       }else{
         taskmng('vk', '');
         console.info(resp.data, 'ERROR');
@@ -369,7 +371,9 @@ angular.module('cint', ['ngRoute'])
       destination_group: "58712113",
       destination_album: "243810710",
       photo: "",
-      photoFile: {}
+      photoFile: {},
+      destination_album_full: true,
+      destination_album_startpos: 0
     },
     Result: "",
     userInfo: function(){
@@ -577,7 +581,9 @@ angular.module('cint', ['ngRoute'])
             false
           )
           .then(function(resp){
-            var count = resp.data.out.response.count;
+            // Set count photos for download
+            var count = (fields.destination_album_startpos != 0) ? fields.destination_album_startpos : resp.data.out.response.count;
+            // console.log(count)
             copyPhotos(fields, $http, vk.token, count, 0, taskmng)
             
           });

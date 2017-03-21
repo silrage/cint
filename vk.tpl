@@ -55,6 +55,11 @@
             <label>Destination</label>
             <input name="destination_group" type="text" ng-model="VK.Fields.destination_group" placeholder="Destination Group ID" />
             <input name="destionation_album" type="text" ng-model="VK.Fields.destination_album" placeholder="Destination Album ID" />
+            <label for="">
+              Full copy (all images in album)
+              <input type="checkbox" checked="checked" ng-model="VK.Fields.destination_album_full" />
+              <input type="number" title="End position photo (start from last publish date)" ng-if="!VK.Fields.destination_album_full" ng-model="VK.Fields.destination_album_startpos" />
+            </label>
           </div>
           <div
             class="field"
